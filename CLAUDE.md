@@ -430,10 +430,23 @@ card's backdrop dissolves into the page and the art reads as a die-cut sticker.
   scaling and the art turns to noise.
 - The favicon is the rarest card padded 24 -> 32, **not scaled**.
 
-### Checked at 360px and 1440px
+### Width
 
-No horizontal document overflow; no text under the 14px Latin floor (every chrome size is a token).
-The nav is a single scrolling row on narrow screens.
+`--maxw` steps 1560 -> 1880 (>=1720px) -> 2160 (>=2200px), and `--rail` widens with it. Every
+full-bleed section (topbar, hero, wall) spans the viewport; only the inner column is capped, and all
+three read from the same token so their edges line up. An index earns its width: 2560px gives
+**9 cards per row**, not 6.
+
+**A sealed card must be a visible face-down tile, not empty space.** 60% of the collection is sealed
+and the wall is id-ordered, so the sealed run is one continuous block — drawn too dark it reads as
+"the page failed to load" rather than as the reveal frontier. `Art.hatch` gives it a ground, a
+diagonal weave and a darker edge.
+
+### Checked at 360 / 1440 / 2560
+
+Cards per row 2 / 5 / 9; art 96 / 144 / 144px (always an integer multiple of 24); zero horizontal
+document overflow; nothing under the 14px Latin floor at any width. The nav is a single scrolling
+row on narrow screens.
 
 ### Not built yet
 

@@ -43,15 +43,20 @@ const Art = (() => {
     return c;
   }
 
-  // an unopened layer is drawn as nothing at all; a fully sealed card gets a weave
-  // so a wall of them reads as fabric rather than as a rendering failure
+  // An unopened layer draws nothing. A fully sealed card gets a face-down tile:
+  // ground, diagonal weave, and a darker edge so a wall of 4,400 of them reads as
+  // stacked cards rather than as a region that failed to render. This matters most
+  // on a wide screen, where 60% of the collection is one continuous block.
   function hatch(ctx, L) {
     if (L !== 0) return;
-    ctx.fillStyle = '#1e2130'; ctx.fillRect(0, 0, W, W);
-    ctx.fillStyle = '#2b3049';
+    ctx.fillStyle = '#242a44'; ctx.fillRect(0, 0, W, W);
+    ctx.fillStyle = '#323a5c';
     for (let y = 0; y < W; y++)
       for (let x = 0; x < W; x++)
-        if ((x + y) % 6 === 0) ctx.fillRect(x, y, 1, 1);
+        if ((x + y) % 4 === 0) ctx.fillRect(x, y, 1, 1);
+    ctx.fillStyle = '#171a29';                      // edge: separates tile from tile
+    ctx.fillRect(0, 0, W, 1); ctx.fillRect(0, W - 1, W, 1);
+    ctx.fillRect(0, 0, 1, W); ctx.fillRect(W - 1, 0, 1, W);
   }
 
   /** Paint a card into a canvas at an exact integer scale. */
