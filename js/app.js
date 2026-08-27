@@ -17,7 +17,7 @@ const CAREER = 10, APPS = 11, GOALS = 12;
 
 /* ---------------------------------------------------------------- state */
 const F = { layers: {}, sealedLayer: {}, tier: null };
-let SORT = 'cls', page = 1, VIEW = 'browse';
+let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
 
 /* ---------------------------------------------------------------- boot */
 (async function boot() {
@@ -41,6 +41,7 @@ let SORT = 'cls', page = 1, VIEW = 'browse';
   buildHero();
   buildRail();
   buildSort();
+  buildReveal();
   buildTabs();
   buildMethod();
   bindNav();
@@ -152,9 +153,17 @@ const anyFilter = () =>
   Object.values(F.layers).some(s => s.size) ||
   Object.values(F.sealedLayer).some(Boolean) || F.tier;
 
-/* Base population: revealed cards only. The sealed 60% get their own view —
-   mixing them in makes every facet count a lie and the grid mostly grey. */
-const POOL = () => ASSETS.filter(a => a.lv === 13);
+/* Base population. Revealed-only by default: mixing the sealed 60% in makes
+   every facet count a lie and the grid mostly grey. But "show me the cards
+   mid-reveal" is a real question — those are the ones actively opening — so it
+   is a deliberate switch rather than something you stumble into. */
+const REVEALS = {
+  revealed: { label: 'Fully revealed', test: a => a.lv === 13 },
+  partial:  { label: 'Mid-reveal',     test: a => a.lv > 0 && a.lv < 13 },
+  sealed:   { label: 'Never opened',   test: a => a.lv === 0 },
+  all:      { label: 'Every card',     test: () => true },
+};
+const POOL = () => ASSETS.filter(REVEALS[REVEAL].test);
 
 function filtered(skip) {
   return POOL().filter(a => matches(a, skip));
@@ -275,8 +284,14 @@ function floodlight(n, max) {
 
 /* ---------------------------------------------------------------- sort */
 const SORTS = {
-  cls:   { label: 'Rarest first',      cmp: (a, b) => a.clsRank - b.clsRank || a.orRank - b.orRank },
-  or:    { label: 'OpenRarity rank',   cmp: (a, b) => a.orRank - b.orRank },
+  cls:   { label: 'Rarest first',
+           cmp: (a, b) => (a.clsRank ?? Infinity) - (b.clsRank ?? Infinity)
+                       || (a.orRank ?? Infinity) - (b.orRank ?? Infinity) },
+  or:    { label: 'OpenRarity rank',
+           cmp: (a, b) => (a.orRank ?? Infinity) - (b.orRank ?? Infinity) },
+  odds:  { label: 'Best odds of top 1%',
+           cmp: (a, b) => (b.pTop1 ?? -1) - (a.pTop1 ?? -1) },
+  opened:{ label: 'Most layers opened', cmp: (a, b) => b.lv - a.lv || a.id - b.id },
   goals: { label: 'Most goals',        cmp: (a, b) => (b.goals ?? -1) - (a.goals ?? -1) },
   apps:  { label: 'Most appearances',  cmp: (a, b) => (b.apps ?? -1) - (a.apps ?? -1) },
   id:    { label: 'Newest minted',     cmp: (a, b) => b.id - a.id },
@@ -284,6 +299,34 @@ const SORTS = {
 };
 /* Never a native <select>: Android wallet webviews delegate the popup to the
    host app, and hosts that skip it leave it silently dead. (CLAUDE.md) */
+function buildReveal() {
+  const el = $('#revealsel');
+  el.innerHTML = `<button class="sel__btn" aria-expanded="false">
+      <i>Showing</i><span id="revlab">${REVEALS[REVEAL].label}</span><i>&#9662;</i></button>
+    <div class="sel__menu" hidden>${Object.entries(REVEALS).map(([k, r]) =>
+      `<button class="sel__opt" data-k="${k}" aria-current="${k === REVEAL}">${r.label}
+         <span style="color:var(--chalk-faint)">${fmt(ASSETS.filter(r.test).length)}</span>
+       </button>`).join('')}</div>`;
+  const btn = el.querySelector('.sel__btn'), menu = el.querySelector('.sel__menu');
+  btn.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
+  document.addEventListener('click', () => { menu.hidden = true; });
+  el.querySelectorAll('.sel__opt').forEach(o => o.onclick = () => {
+    REVEAL = o.dataset.k; page = 1;
+    $('#revlab').textContent = REVEALS[REVEAL].label;
+    el.querySelectorAll('.sel__opt').forEach(x => x.setAttribute('aria-current', x.dataset.k === REVEAL));
+    // a rank sort is meaningless once unranked cards are in the pool
+    if (REVEAL !== 'revealed' && (SORT === 'cls' || SORT === 'or')) setSort('odds');
+    if (REVEAL === 'revealed' && (SORT === 'odds' || SORT === 'opened')) setSort('cls');
+    facetCache.clear(); render();
+  });
+}
+
+function setSort(k) {
+  SORT = k;
+  $('#sortlab').textContent = SORTS[k].label;
+  $$('#sortsel .sel__opt').forEach(x => x.setAttribute('aria-current', x.dataset.k === k));
+}
+
 function buildSort() {
   const el = $('#sortsel');
   el.innerHTML = `<button class="sel__btn" aria-expanded="false">
@@ -294,10 +337,7 @@ function buildSort() {
   btn.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; btn.setAttribute('aria-expanded', !menu.hidden); };
   document.addEventListener('click', () => { menu.hidden = true; btn.setAttribute('aria-expanded', 'false'); });
   el.querySelectorAll('.sel__opt').forEach(o => o.onclick = () => {
-    SORT = o.dataset.k; page = 1;
-    $('#sortlab').textContent = SORTS[SORT].label;
-    el.querySelectorAll('.sel__opt').forEach(x => x.setAttribute('aria-current', x.dataset.k === SORT));
-    render();
+    setSort(o.dataset.k); page = 1; render();
   });
 }
 
@@ -305,9 +345,13 @@ function buildSort() {
 function render() {
   updateRail();
   const list = filtered(null).sort(SORTS[SORT].cmp);
+  const poolN = POOL().length;
+  const noun = REVEAL === 'revealed' ? 'revealed players'
+             : REVEAL === 'partial'  ? 'cards mid-reveal'
+             : REVEAL === 'sealed'   ? 'unopened cards' : 'cards';
   $('#count').innerHTML = anyFilter()
-    ? `<b>${fmt(list.length)}</b> of ${fmt(D.meta.settled)} revealed`
-    : `<b>${fmt(list.length)}</b> revealed players`;
+    ? `<b>${fmt(list.length)}</b> of ${fmt(poolN)} ${noun}`
+    : `<b>${fmt(list.length)}</b> ${noun}`;
   renderChips();
 
   const grid = $('#grid');
@@ -351,11 +395,13 @@ function cardEl(a, i) {
     (badge ? `<span class="card__tier card__tier--${badge[0]}">${badge[1]}</span>` : '') +
     `<canvas></canvas>
      <div class="card__plate">
-       <span class="card__role">${a.career || 'Sealed'}</span>
-       <span class="card__nat">${a.lv === 13 ? label(2, a.t[2]) : ''}</span>
+       <span class="card__role">${a.career
+          || (a.t[CAREER] === SEALED ? 'Career sealed' : label(CAREER, a.t[CAREER]))}</span>
+       <span class="card__nat">${a.t[2] === SEALED ? '' : label(2, a.t[2])}</span>
      </div>
-     <div class="meter">${Array.from({ length: 13 }, (_, k) =>
-        `<i class="${k < a.lv ? 'on' : ''}"></i>`).join('')}</div>`;
+     ${a.lv < 13 ? `<div class="meter" title="${a.lv} of 13 layers opened">
+        ${Array.from({ length: 13 }, (_, k) => `<i class="${k < a.lv ? 'on' : ''}"></i>`).join('')}
+        <b>${a.lv}/13</b></div>` : ''}`;
   Art.paint(d.querySelector('canvas'), a.t, 6);
   d.onclick = () => openCard(a);
   return d;

@@ -468,6 +468,15 @@ full-bleed section (topbar, hero, wall) spans the viewport; only the inner colum
 three read from the same token so their edges line up. An index earns its width: 2560px gives
 **9 cards per row**, not 6.
 
+**An indicator that never varies in a view is not an indicator.** The reveal meter used to render
+on every card; the Players pool is revealed-only, so it was 13/13 on all of them and read as
+decoration. It now renders only when `lv < 13` — its *presence* is the signal — and carries an
+`N/13` label. The same mistake had already been made once with the rail's coverage bars. Before
+shipping any bar, chip or badge, check what it looks like on the view where it is most common.
+
+**A partial card must show what it HAS opened.** Gating the nation and career on `lv === 13` hid
+facts the chain had already settled — a 9/13 card knows its nation.
+
 **A sealed card must be a visible face-down tile, not empty space.** 60% of the collection is sealed
 and the wall is id-ordered, so the sealed run is one continuous block — drawn too dark it reads as
 "the page failed to load" rather than as the reveal frontier. `Art.hatch` gives it a ground, a
