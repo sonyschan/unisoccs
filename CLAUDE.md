@@ -383,6 +383,37 @@ Inherited from `~/uDay/CLAUDE.md:238-299`; they were paid for once already.
 
 ---
 
+## Deploy
+
+**GitHub is the source of truth.** `github.com/sonyschan/unisoccs` (**public**, MIT) is wired to the
+Vercel project `sonyschans-projects/unisoccs`, so **shipping means commit + push to `main`**.
+Live at **https://unisoccs.vercel.app**.
+
+- **Do not `vercel deploy --prod` from the CLI** now that git is connected. It still works, and that
+  is the problem: it publishes with no commit behind it, so the live site silently stops matching
+  `main` and nothing records what shipped. (The first two deploys predated the git connection.)
+- `vercel git connect` fails with a generic "make sure there aren't any typos" error when the Vercel
+  GitHub App simply lacks access to the repo. It is not a typo and not a permissions bug on Vercel's
+  side — add the repo at github.com/settings/installations -> Vercel -> Repository access.
+- `.gitignore` and `.vercelignore` are **separate lists with different jobs**: `CLAUDE.md`, `tools/`,
+  `README.md` and `.github/` are committed (they are the project) but excluded from the deploy (they
+  are not the website).
+- Cache headers live in `vercel.json`: the four pinned data files are `immutable` for a year (the art
+  is locked and the vocabulary is never re-scraped), `index.json` is 5 minutes.
+
+### `.github/workflows/index.yml`
+
+Cron `11,41 * * * *` — deliberately off the hour and off uDay's `7,22,37,52`, since both can share an
+RPC. Runs `tools/build_index.py` (~60s, stdlib only), commits `data/index.json` only when it changed,
+and pushes with a `git pull --rebase -X theirs` retry loop so the fresher sweep wins a race.
+
+**No secret is required** — the public Robinhood node is enough. `ROBINHOOD_RPC_URL` is an optional
+speed-up. Guarded by `if: github.repository == 'sonyschan/unisoccs'` so forks don't run it.
+
+⚠️ Claude Code's own token lacks the `workflow` OAuth scope, so it cannot push changes to files under
+`.github/workflows/`. The local `gh` CLI **does** have that scope, which is how this one got up.
+
+
 ## The site (built 2026-08-27)
 
 No build step, no bundler, no framework. `python3 -m http.server 8791 --directory ~/Unisoccs`

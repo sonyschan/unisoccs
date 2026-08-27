@@ -9,6 +9,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const SEALED = -1;
 const PAGE = 120;
 const fmt = n => n.toLocaleString('en-US');
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
 
 let D, LAYERS, ASSETS, BY_ID = new Map();
 let ART_LAYERS = [];                 // the 10 scored art layers
@@ -194,8 +195,8 @@ function buildRail() {
     L.names.forEach((n, i) => opts.push({ el: i + 1, name: n }));
     html += `<div class="sect" data-open="${L.index < 3 ? 1 : 0}" data-sect="${L.index}">
       <div class="sect__h" title="${L.optional
-          ? `${L.name} is drawn on ${L.bps / 1000}% of cards — ${opts.length - 1} variants plus none`
-          : `${L.name} is on every card — ${opts.length} variants`}"><h3>${L.name}</h3>
+          ? `${L.name} is drawn on ${L.bps / 1000}% of cards — ${plural(opts.length - 1, 'variant')} plus none`
+          : `${L.name} is on every card — ${plural(opts.length, 'variant')}`}"><h3>${L.name}</h3>
         <span class="sect__n">${opts.length}</span>
         ${L.optional ? `<span class="sect__cov"><i style="width:${L.bps / 1000}%"></i></span>
           <span class="sect__pct">${L.bps / 1000}%</span>` : ''}
