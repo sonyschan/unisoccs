@@ -1,0 +1,60 @@
+name: refresh index
+
+# The collection changes continuously: reveal is trade-driven, and selling BURNS
+# the seller's cards, so counts move down as well as up. A full sweep is ~60s of
+# read-only RPC calls, so this is cheap to run often.
+#
+# Deliberately off the hour, and off uDay's 7,22,37,52 — they can share an RPC.
+on:
+  schedule:
+    - cron: '11,41 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: refresh-index
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.repository == 'sonyschan/unisoccs'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # No dependencies on purpose: tools/ is stdlib-only, and the public
+      # Robinhood RPC is enough. ROBINHOOD_RPC_URL is an optional speed-up.
+      - name: Build the index
+        env:
+          ROBINHOOD_RPC_URL: ${{ secrets.ROBINHOOD_RPC_URL }}
+        run: python3 tools/build_index.py
+
+      - name: Commit if anything moved
+        run: |
+          git add data/index.json
+          if git diff --cached --quiet; then
+            echo "index unchanged"
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json
+          m = json.load(open('data/index.json'))['meta']
+          print(f"::notice::alive {m['alive']} · settled {m['settled']} · "
+                f"sealed {m['sealed']} · partial {m['partial']}")
+          PY
+          git config user.name  "unisoccs-index-bot"
+          git config user.email "unisoccs-index-bot@users.noreply.github.com"
+          git commit -m "data: refresh index"
+          # our sweep is the fresher truth, so it wins any race with another run
+          for i in 1 2 3; do
+            git push && exit 0
+            git pull --rebase -X theirs
+          done
+          git push

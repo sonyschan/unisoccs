@@ -9,12 +9,13 @@ Verification is not optional: compositing the sprites in layer order must
 reproduce sidecar.generateSvgForAsset byte-for-byte. Measured 0/576 pixel
 diffs; anything else means the model is wrong and the build must stop.
 """
-import json, re, sys, time, concurrent.futures as cf
-sys.path.insert(0, "/Users/sonyschan/Unisoccs/tools")
+import json, os, re, sys, time, concurrent.futures as cf
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rpc
 
-OUT   = "/Users/sonyschan/Unisoccs/data/elements.json"
-VOCAB = "/Users/sonyschan/Unisoccs/data/vocabulary.json"
+ROOT  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT   = os.path.join(ROOT, "data", "elements.json")
+VOCAB = os.path.join(ROOT, "data", "vocabulary.json")
 RECT  = re.compile(r"<rect x='(\d+)' y='(\d+)' width='(\d+)' height='(\d+)' fill='(#[0-9a-fA-F]{3,6})'")
 
 def rects(svg, drop_bg=True):
@@ -94,16 +95,25 @@ def main():
                    "skipping elementId 0. Verified 0/576 pixel diffs vs generateSvgForAsset.",
            "palette": palette, "elements": packed}
     json.dump(doc, open(OUT, "w"), separators=(",", ":"))
-    import os
     print(f"wrote {OUT}  {os.path.getsize(OUT)/1024:.1f} KB raw, "
           f"{len(palette)} colours, {sum(len(v) for v in packed.values())} sprites")
     return sprites
 
 def verify(sprites, n=25):
-    """Composite vs the chain's own render. This is the gate, not a nicety."""
+    """Composite vs the chain's own render. This is the gate, not a nicety.
+
+    Needs data/index.json to exist (run build_index.py first) for a sample of
+    settled trait vectors to check against.
+    """
     import random
-    alive = json.load(open("/private/tmp/claude-501/-Users-sonyschan-Unisoccs/"
-                           "60600391-3722-4fc9-a2dc-09cfa2a67048/scratchpad/vecs.json"))
+    idx = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                       "data", "index.json")
+    if not os.path.exists(idx):
+        print("verify: skipped — build data/index.json first")
+        return
+    alive = {str(a["id"]): a["t"] for a in json.load(open(idx))["assets"] if a["lv"] == 13}
+    if len(alive) < n:
+        n = len(alive)
     ids = random.Random(11).sample(sorted(alive, key=int), n)
     bad = burned = 0
     for aid in ids:

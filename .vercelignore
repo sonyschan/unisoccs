@@ -3,3 +3,6 @@ tools/
 .playwright-mcp/
 __pycache__/
 *.pyc
+README.md
+LICENSE
+.github/

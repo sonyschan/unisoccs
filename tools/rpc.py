@@ -40,19 +40,22 @@ RPCS = [
 HDRS = {"Content-Type": "application/json", "User-Agent": "Mozilla/5.0 (unisoccs-indexer)"}
 
 def _rpc_pool():
+    """A dedicated endpoint first if one is configured, then the public nodes.
+
+    The public nodes are enough for this project (a full sweep is ~45s), so
+    ROBINHOOD_RPC_URL is an optimisation, never a requirement — CI runs without it.
+    """
     import os
-    urls = []
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     env = os.environ.get("ROBINHOOD_RPC_URL")
     if not env:
         try:
-            for line in open("/Users/sonyschan/Unisoccs/.env"):
+            for line in open(os.path.join(root, ".env")):
                 if line.startswith("ROBINHOOD_RPC_URL="):
                     env = line.split("=", 1)[1].strip()
         except OSError:
             pass
-    if env:
-        urls.append(env)
-    return urls + RPCS
+    return ([env] if env else []) + RPCS
 
 POOL = _rpc_pool()
 

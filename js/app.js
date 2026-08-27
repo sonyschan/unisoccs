@@ -178,7 +178,10 @@ function facetCounts(li) {
 function buildRail() {
   const rail = $('#rail');
   const tiers = [['t1', 'Top 1%'], ['t2', 'Top 3%'], ['t3', 'Top 10%']];
-  let html = `<div class="sect" data-open="1" data-sect="tier">
+  let html = `<p class="rail__key"><i></i>
+      <span>Green bars are how often a layer is drawn at all &mdash;
+      only five of the thirteen are optional.</span></p>
+    <div class="sect" data-open="1" data-sect="tier">
     <div class="sect__h"><h3>Rarity</h3><span class="sect__n">class</span></div>
     <div class="sect__b">${tiers.map(([k, l]) =>
       `<button class="f" data-tier="${k}" aria-pressed="false">
@@ -190,9 +193,12 @@ function buildRail() {
     if (L.optional) opts.push({ el: 0, name: noneLabel(L.index) });
     L.names.forEach((n, i) => opts.push({ el: i + 1, name: n }));
     html += `<div class="sect" data-open="${L.index < 3 ? 1 : 0}" data-sect="${L.index}">
-      <div class="sect__h"><h3>${L.name}</h3>
+      <div class="sect__h" title="${L.optional
+          ? `${L.name} is drawn on ${L.bps / 1000}% of cards — ${opts.length - 1} variants plus none`
+          : `${L.name} is on every card — ${opts.length} variants`}"><h3>${L.name}</h3>
         <span class="sect__n">${opts.length}</span>
-        ${L.optional ? `<span class="sect__cov" title="${L.bps / 1000}% of cards have this layer"><i style="width:${L.bps / 1000}%"></i></span>` : ''}
+        ${L.optional ? `<span class="sect__cov"><i style="width:${L.bps / 1000}%"></i></span>
+          <span class="sect__pct">${L.bps / 1000}%</span>` : ''}
       </div>
       <div class="sect__b">${opts.map(o =>
         `<button class="f${o.el === 0 ? ' is-none' : ''}" data-l="${L.index}" data-e="${o.el}" aria-pressed="false">
