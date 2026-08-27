@@ -439,6 +439,14 @@ cards could never get on the pitch. A holder with nine cards, four of them in th
 five. Simulated over random holdings, folding it into midfield and playing 4-4-3 fields a full extra
 player at nine cards (6.8 → 7.8). Eleven outfield, no goalkeeper.
 
+**A rule derived from the career needs an escape hatch for careers that say nothing.** Position comes
+from the career's baseline — correct, because `goals = base + (0..9)` and a 90/0 defender who rolls
++3 is still a defender. But three careers have a 0/0 baseline (Prospect, Trialist, Youth Product),
+which carries no positional information at all, and those cards' entire record comes from the two
+rolls. Treating a 0/0 baseline as "never played" labelled #21532 — a Prospect with **8 appearances
+and 5 goals** — as having never played a game. Those cards are now judged on their own record; only
+a card with genuinely zero appearances is unplaced, which is 13 cards rather than 140.
+
 **Nobody knows what DEF means, so do not print DEF.** Positions read as Defender / Midfielder /
 Forward, the derivation is stated wherever an XI appears ("no goals in the baseline makes a
 defender"), the rail has a Position filter, and the card sheet says which one this card is and why.

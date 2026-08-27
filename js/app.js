@@ -200,7 +200,7 @@ function buildRail() {
   const rail = $('#rail');
   const tiers = [['t1', 'Top 1%'], ['t2', 'Top 3%'], ['t3', 'Top 10%']];
   const positions = [['DEF', 'Defenders'], ['MID', 'Midfielders'],
-                     ['FWD', 'Forwards'], ['FRINGE', 'Never played']];
+                     ['FWD', 'Forwards'], ['FRINGE', 'Unplaced']];
   let html = `<p class="rail__key"><i></i>
       <span>Green bars are how often a layer is drawn at all &mdash; only five of
       the thirteen are optional. Rows are lit by how unlikely that value is
@@ -602,12 +602,12 @@ function pickXI(pool) {
 }
 
 const FORMATION = [['DEF', 4], ['MID', 4], ['FWD', 3]];
-const POS_NAME = { DEF: 'Defender', MID: 'Midfielder', FWD: 'Forward', FRINGE: 'No position' };
+const POS_NAME = { DEF: 'Defender', MID: 'Midfielder', FWD: 'Forward', FRINGE: 'Unplaced' };
 const POS_WHY = {
   DEF: 'a career whose baseline has no goals in it at all',
   MID: 'scores now and then, but is not a front-line scorer',
   FWD: 'scores in more than half the games played',
-  FRINGE: 'has never played a game, so cannot be picked',
+  FRINGE: 'no appearances at all, so there is no record to place them by',
 };
 
 /* Where each shirt stands, as a percentage of the pitch. Attacking upward, and
@@ -656,7 +656,7 @@ function benchHTML(all, xi) {
     const list = byPos[pos];
     const played = xi.filter(a => a.pos === pos).length;
     const why = pos === 'FRINGE'
-      ? `No position &mdash; ${POS_WHY.FRINGE}`
+      ? `Cannot be placed &mdash; ${POS_WHY.FRINGE}`
       : `${POS_NAME[pos]}s &mdash; all ${played} ${POS_NAME[pos].toLowerCase()} shirt${
           played === 1 ? ' is' : 's are'} taken by a better record`;
     return `<div class="bench__k">${why}</div>
@@ -1010,8 +1010,12 @@ function openCard(a) {
         <p>${a.career} starts at ${a.apps - (a.t[APPS] - 1)}/${a.goals - (a.t[GOALS] - 1)};
            this card's <b>+${a.t[APPS] - 1}</b> and <b>+${a.t[GOALS] - 1}</b> traits are the units digit.
            ${a.apps ? `That is <b>${(a.goals / a.apps).toFixed(2)}</b> goals per appearance.` : ''}</p>
-        ${a.pos ? `<p>Plays as a <b>${POS_NAME[a.pos].toLowerCase()}</b> &mdash; ${POS_WHY[a.pos]}.
-          Position is read off the career, not off this card's roll.</p>` : ''}
+        ${a.pos ? `<p>${a.pos === 'FRINGE'
+          ? `<b>Unplaced</b> &mdash; ${POS_WHY.FRINGE}.`
+          : `Plays as a <b>${POS_NAME[a.pos].toLowerCase()}</b> &mdash; ${POS_WHY[a.pos]}.`}
+          Position comes from the career's own baseline, except for
+          <i>Prospect</i>, <i>Trialist</i> and <i>Youth Product</i>, whose baseline is 0/0 and says
+          nothing &mdash; those are judged on the card's own record.</p>` : ''}
       </div>` : ''}
       ${settled && a.apps != null ? `<div class="panel"><h4>How many should exist</h4>
         <p style="margin:0 0 4px">The layers are drawn independently and evenly, so these are

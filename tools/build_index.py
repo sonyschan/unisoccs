@@ -140,7 +140,7 @@ def career_line(vec):
             "apps":  c["appsBase"]  + vec[APPS]  - 1,
             "goals": c["goalsBase"] + vec[GOALS] - 1}
 
-def position(career_el):
+def position(career_el, apps, goals):
     """Position comes from the CAREER's own baseline, not the card's final line.
 
     goals = base + (0..9), so a defender who happens to roll +3 still has goals
@@ -148,11 +148,19 @@ def position(career_el):
     all" the only way to be a defender — that is 3.4% of cards, and it left most
     nations unable to field a back four. The career IS the position; the +N is a
     modifier on top of it.
+
+    The exception is a baseline of 0/0 — Prospect, Trialist, Youth Product. Those
+    three say nothing about where anyone plays, and the card's whole record comes
+    from its two rolls, so there the card IS the only evidence. Only a card that
+    has genuinely played nothing has no position; #21532 is a Prospect with 8
+    appearances and 5 goals, and calling that "never played" was simply wrong.
     """
     c = CSTAT[str(career_el)]
     a, g = c["appsBase"], c["goalsBase"]
     if a == 0:
-        return "FRINGE"                       # Prospect / Trialist / Youth Product
+        if apps == 0:
+            return "FRINGE"                   # never took the field at all
+        a, g = apps, goals                    # judge it on what it actually did
     r = g / a
     # Three buckets, not four. A separate attacking-midfield band held 16 of the
     # 64 careers — a quarter of every card — while the formation gave it one
@@ -287,7 +295,7 @@ def main():
                 row["tier"] = cls_tier[m]
             cl = career_line(v)
             if cl:
-                row |= cl | {"pos": position(v[CAREER])}
+                row |= cl | {"pos": position(v[CAREER], cl["apps"], cl["goals"])}
         else:
             post = posterior(v)
             row["pTop1"] = round(sum(p for m, p in post.items() if m in t1_masks), 5)
