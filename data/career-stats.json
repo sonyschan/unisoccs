@@ -1,0 +1,326 @@
+{
+ "v": 1,
+ "note": "Decoded from the Career layer's own art: the sprite paints the TENS digit of appearances (white, x=2) and goals (gold, x=14). The Appearances/Goals traits are the units digit (elementId-1). Final = base + (elementId-1). Objective, on-chain.",
+ "careers": {
+  "1": {
+   "name": "All Time Great",
+   "appsBase": 90,
+   "goalsBase": 80
+  },
+  "2": {
+   "name": "Anchor",
+   "appsBase": 30,
+   "goalsBase": 10
+  },
+  "3": {
+   "name": "Attacking Mid",
+   "appsBase": 50,
+   "goalsBase": 20
+  },
+  "4": {
+   "name": "Backup",
+   "appsBase": 20,
+   "goalsBase": 0
+  },
+  "5": {
+   "name": "Box to Box",
+   "appsBase": 20,
+   "goalsBase": 10
+  },
+  "6": {
+   "name": "Captain",
+   "appsBase": 50,
+   "goalsBase": 10
+  },
+  "7": {
+   "name": "Centre Half",
+   "appsBase": 40,
+   "goalsBase": 0
+  },
+  "8": {
+   "name": "Club Servant",
+   "appsBase": 50,
+   "goalsBase": 0
+  },
+  "9": {
+   "name": "Colossus",
+   "appsBase": 80,
+   "goalsBase": 10
+  },
+  "10": {
+   "name": "Creator",
+   "appsBase": 40,
+   "goalsBase": 10
+  },
+  "11": {
+   "name": "Deep Playmaker",
+   "appsBase": 60,
+   "goalsBase": 20
+  },
+  "12": {
+   "name": "Defender",
+   "appsBase": 30,
+   "goalsBase": 0
+  },
+  "13": {
+   "name": "Finisher",
+   "appsBase": 50,
+   "goalsBase": 40
+  },
+  "14": {
+   "name": "Forward",
+   "appsBase": 60,
+   "goalsBase": 30
+  },
+  "15": {
+   "name": "Fox in the Box",
+   "appsBase": 40,
+   "goalsBase": 30
+  },
+  "16": {
+   "name": "Full Back",
+   "appsBase": 40,
+   "goalsBase": 0
+  },
+  "17": {
+   "name": "Goal Machine",
+   "appsBase": 80,
+   "goalsBase": 60
+  },
+  "18": {
+   "name": "Grafter",
+   "appsBase": 20,
+   "goalsBase": 10
+  },
+  "19": {
+   "name": "Icon",
+   "appsBase": 80,
+   "goalsBase": 30
+  },
+  "20": {
+   "name": "Immortal Wall",
+   "appsBase": 90,
+   "goalsBase": 0
+  },
+  "21": {
+   "name": "Impact Sub",
+   "appsBase": 10,
+   "goalsBase": 10
+  },
+  "22": {
+   "name": "Iron Wall",
+   "appsBase": 70,
+   "goalsBase": 0
+  },
+  "23": {
+   "name": "Journeyman",
+   "appsBase": 20,
+   "goalsBase": 0
+  },
+  "24": {
+   "name": "Living Legend",
+   "appsBase": 90,
+   "goalsBase": 30
+  },
+  "25": {
+   "name": "Maestro",
+   "appsBase": 80,
+   "goalsBase": 20
+  },
+  "26": {
+   "name": "Mainstay",
+   "appsBase": 60,
+   "goalsBase": 10
+  },
+  "27": {
+   "name": "Man Marker",
+   "appsBase": 40,
+   "goalsBase": 0
+  },
+  "28": {
+   "name": "Marksman",
+   "appsBase": 60,
+   "goalsBase": 40
+  },
+  "29": {
+   "name": "Metronome",
+   "appsBase": 70,
+   "goalsBase": 20
+  },
+  "30": {
+   "name": "Midfield Engine",
+   "appsBase": 30,
+   "goalsBase": 10
+  },
+  "31": {
+   "name": "National Hero",
+   "appsBase": 90,
+   "goalsBase": 40
+  },
+  "32": {
+   "name": "Number Ten",
+   "appsBase": 50,
+   "goalsBase": 20
+  },
+  "33": {
+   "name": "Old Guard",
+   "appsBase": 60,
+   "goalsBase": 0
+  },
+  "34": {
+   "name": "One Club Man",
+   "appsBase": 50,
+   "goalsBase": 0
+  },
+  "35": {
+   "name": "Playmaker",
+   "appsBase": 40,
+   "goalsBase": 10
+  },
+  "36": {
+   "name": "Poacher",
+   "appsBase": 20,
+   "goalsBase": 20
+  },
+  "37": {
+   "name": "Predator",
+   "appsBase": 80,
+   "goalsBase": 50
+  },
+  "38": {
+   "name": "Prospect",
+   "appsBase": 0,
+   "goalsBase": 0
+  },
+  "39": {
+   "name": "Regista",
+   "appsBase": 30,
+   "goalsBase": 10
+  },
+  "40": {
+   "name": "Rotation",
+   "appsBase": 10,
+   "goalsBase": 0
+  },
+  "41": {
+   "name": "Second Striker",
+   "appsBase": 40,
+   "goalsBase": 20
+  },
+  "42": {
+   "name": "Shadow Striker",
+   "appsBase": 40,
+   "goalsBase": 20
+  },
+  "43": {
+   "name": "Sharpshooter",
+   "appsBase": 70,
+   "goalsBase": 50
+  },
+  "44": {
+   "name": "Skipper",
+   "appsBase": 50,
+   "goalsBase": 10
+  },
+  "45": {
+   "name": "Squad Player",
+   "appsBase": 10,
+   "goalsBase": 0
+  },
+  "46": {
+   "name": "Stalwart",
+   "appsBase": 60,
+   "goalsBase": 10
+  },
+  "47": {
+   "name": "Star Forward",
+   "appsBase": 70,
+   "goalsBase": 40
+  },
+  "48": {
+   "name": "Stopper",
+   "appsBase": 30,
+   "goalsBase": 0
+  },
+  "49": {
+   "name": "Super Sub",
+   "appsBase": 10,
+   "goalsBase": 10
+  },
+  "50": {
+   "name": "Sweeper",
+   "appsBase": 30,
+   "goalsBase": 0
+  },
+  "51": {
+   "name": "Talisman",
+   "appsBase": 70,
+   "goalsBase": 30
+  },
+  "52": {
+   "name": "Target Man",
+   "appsBase": 50,
+   "goalsBase": 30
+  },
+  "53": {
+   "name": "The General",
+   "appsBase": 70,
+   "goalsBase": 10
+  },
+  "54": {
+   "name": "The Monument",
+   "appsBase": 90,
+   "goalsBase": 10
+  },
+  "55": {
+   "name": "The Phenomenon",
+   "appsBase": 90,
+   "goalsBase": 60
+  },
+  "56": {
+   "name": "The Rock",
+   "appsBase": 80,
+   "goalsBase": 0
+  },
+  "57": {
+   "name": "Trialist",
+   "appsBase": 0,
+   "goalsBase": 0
+  },
+  "58": {
+   "name": "Understudy",
+   "appsBase": 10,
+   "goalsBase": 0
+  },
+  "59": {
+   "name": "Utility Man",
+   "appsBase": 20,
+   "goalsBase": 0
+  },
+  "60": {
+   "name": "Veteran",
+   "appsBase": 60,
+   "goalsBase": 0
+  },
+  "61": {
+   "name": "Wide Man",
+   "appsBase": 30,
+   "goalsBase": 20
+  },
+  "62": {
+   "name": "Winger",
+   "appsBase": 30,
+   "goalsBase": 20
+  },
+  "63": {
+   "name": "Workhorse",
+   "appsBase": 20,
+   "goalsBase": 10
+  },
+  "64": {
+   "name": "Youth Product",
+   "appsBase": 0,
+   "goalsBase": 0
+  }
+ }
+}
