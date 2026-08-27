@@ -156,6 +156,22 @@ def position(career_el):
     r = g / a
     return "DEF" if r == 0 else "MID" if r < 0.3 else "AM" if r < 0.55 else "FWD"
 
+def competition_rank(items, key):
+    """Standard competition ranking: 1, 2, 2, 4. Equal values share a rank.
+
+    Handing out 314 and 315 to two cards with an identical score invents an
+    ordering that the data does not contain — and it contradicts what this site
+    says about that score on its own Method page.
+    """
+    ordered = sorted(items, key=key)
+    ranks, prev, prev_rank = {}, object(), 0
+    for i, it in enumerate(ordered, 1):
+        k = key(it)
+        if k != prev:
+            prev, prev_rank = k, i
+        ranks[it if isinstance(it, int) else id(it)] = prev_rank
+    return ranks, ordered
+
 def open_rarity(vecs_settled):
     n = len(vecs_settled)
     cnt = [Counter() for _ in range(13)]
@@ -201,8 +217,11 @@ def main():
 
     settled = {a: v for a, v in vecs.items() if alive[a] == 13}
     orscore, H, cnt = open_rarity(settled)
-    order = sorted(settled, key=lambda a: (-orscore[a], a))
-    orrank = {a: i + 1 for i, a in enumerate(order)}
+    # Equal scores share a rank (competition ranking), as every marketplace does.
+    # Rank on the SAME precision the site prints. Two cards both shown as
+    # 0.875582 must share a rank; splitting them on the 9th decimal is exactly
+    # the false precision the Method page warns about.
+    orrank, _ = competition_rank(list(settled), lambda a: -round(orscore[a], 6))
 
     cls_count = Counter(class_mask(v) for v in settled.values())
     # Rank by how many SHOULD exist, not by information content. IC also rewards
@@ -210,7 +229,26 @@ def main():
     # odds could land several places apart — and the table's own "should exist"
     # column would then contradict its ordering. Ties break on IC.
     cls_order = sorted(cls_count, key=lambda m: (CLASS_P[m], -CLASS_IC[m]))
-    cls_rank  = {m: i + 1 for i, m in enumerate(cls_order)}
+    cls_rank, _ = competition_rank(list(cls_count), lambda m: round(CLASS_P[m], 12))
+
+    # A tier belongs to a CLASS, never to a card, and it is cut on DESIGN
+    # probability over all 32 possible classes — not on observed counts.
+    #
+    # Two reasons. Cutting at a percentile of revealed cards sliced straight
+    # through a class, so cards with identical odds landed on opposite sides of
+    # a badge on counting noise alone (measured: 8 identical cards, 3 with a
+    # gold badge and 5 without). And an observed cut moves as reveal proceeds,
+    # which would quietly break the promise this site makes — that a card's
+    # class never changes under it. Design probability never moves.
+    TIERS = [("t1", 0.01), ("t2", 0.03), ("t3", 0.10)]
+    all_masks = sorted(range(1 << len(OPTIONAL)), key=lambda m: CLASS_P[m])
+    cls_tier, cum_p = {}, 0.0
+    for m in all_masks:
+        cum_p += CLASS_P[m]
+        for key, thr in TIERS:
+            if cum_p <= thr:
+                cls_tier[m] = key
+                break
 
     # exact posterior over final class for anything not settled
     def posterior(vec):
@@ -227,8 +265,9 @@ def main():
                 dist = {m | 1 << k: p for m, p in dist.items()}
         return dist
 
-    top1_ic = sorted((CLASS_IC[m] for m in cls_count for _ in range(cls_count[m])),
-                     reverse=True)[max(0, int(0.01 * len(settled)) - 1)]
+    # The same t1 set the badge uses, so "chance of finishing in the rarest 1%"
+    # means exactly the badge it refers to.
+    t1_masks = {m for m, k in cls_tier.items() if k == "t1"}
 
     assets = []
     for a in sorted(alive):
@@ -239,12 +278,14 @@ def main():
             row |= {"cls": m, "clsRank": cls_rank[m], "clsCount": cls_count[m],
                     "clsP": round(CLASS_P[m], 9), "ic": round(CLASS_IC[m], 4),
                     "or": round(orscore[a], 6), "orRank": orrank[a]}
+            if m in cls_tier:
+                row["tier"] = cls_tier[m]
             cl = career_line(v)
             if cl:
                 row |= cl | {"pos": position(v[CAREER])}
         else:
             post = posterior(v)
-            row["pTop1"] = round(sum(p for m, p in post.items() if CLASS_IC[m] >= top1_ic), 5)
+            row["pTop1"] = round(sum(p for m, p in post.items() if m in t1_masks), 5)
         assets.append(row)
 
     layers = []
@@ -269,6 +310,7 @@ def main():
            "classOrder": cls_order,
            "classes": {str(m): {"ic": round(CLASS_IC[m], 4), "p": round(CLASS_P[m], 9),
                                 "count": cls_count[m], "rank": cls_rank[m],
+                                "tier": cls_tier.get(m),
                                 "expected": round(CLASS_P[m] * len(alive), 2)}
                        for m in cls_order},
            "optionalLayers": [NAMES[L] for L in OPTIONAL],

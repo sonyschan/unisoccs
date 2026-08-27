@@ -37,7 +37,6 @@ let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
   for (const a of ASSETS) BY_ID.set(a.id, a);
   Art.init(els, digits);
 
-  assignTiers();
   buildHero();
   buildRail();
   buildSort();
@@ -49,16 +48,21 @@ let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
   render();
 })();
 
-/* Tier is a percentile of ASSETS, not of classes: a class holding 400 cards
-   is not "top 1%" just because only 21 classes exist. Below the top 10% no
-   badge at all — badges have to stay scarce or the grid turns to soup. */
-function assignTiers() {
-  const settled = ASSETS.filter(a => a.lv === 13).sort((x, y) => x.clsRank - y.clsRank || x.orRank - y.orRank);
-  const n = settled.length;
-  settled.forEach((a, i) => {
-    const p = (i + 1) / n;
-    a.tier = p <= 0.01 ? 't1' : p <= 0.03 ? 't2' : p <= 0.10 ? 't3' : null;
-    a.pct = p;
+/* Tiers arrive from the builder and belong to a CLASS, never to a card.
+   Cutting at a percentile of cards here used to slice through a class, so
+   cards with identical odds landed on opposite sides of a badge, decided by
+   counting noise. Below the top 10% there is no badge at all — badges have to
+   stay scarce or the grid turns to soup. */
+const TIER_LABEL = { t1: 'TOP 1%', t2: 'TOP 3%', t3: 'TOP 10%' };
+
+/* Standard competition ranking: 1, 2, 2, 4. Used for every leaderboard, because
+   a rank that splits equal values invents an order the data does not have. */
+function withRanks(rows, value) {
+  let prev = null, prevRank = 0;
+  return rows.map((r, i) => {
+    const v = value(r);
+    if (v !== prev) { prev = v; prevRank = i + 1; }
+    return [prevRank, r];
   });
 }
 
@@ -393,8 +397,7 @@ function cardEl(a, i) {
                 (a.lv < 13 ? ' card--sealed' : '');
   d.style.animationDelay = Math.min(i, 24) * 12 + 'ms';
   const badge = kit ? ['kit', 'UNISWAP FC']
-    : a.tier === 't1' ? ['t1', 'TOP 1%'] : a.tier === 't2' ? ['t2', 'TOP 3%']
-    : a.tier === 't3' ? ['t3', 'TOP 10%'] : null;
+    : a.tier ? [a.tier, TIER_LABEL[a.tier]] : null;
   d.innerHTML =
     `<span class="card__id">#${a.id}</span>` +
     (badge ? `<span class="card__tier card__tier--${badge[0]}">${badge[1]}</span>` : '') +
@@ -422,6 +425,7 @@ const TABS = {
       <b>${D.meta.classesSeen} classes</b>, and the count beside each is how many exist against how many
       the generator should have produced.`,
     rows: () => POOL().sort((a, b) => a.clsRank - b.clsRank || a.orRank - b.orRank).slice(0, 60),
+    rankBy: a => a.clsRank,
     cols: [
       ['', a => art(a)],
       ['Player', a => `#${a.id} <span style="color:var(--chalk-faint)">${a.career}</span>`],
@@ -441,6 +445,7 @@ const TABS = {
       The ceiling is All Time Great at <b>+9/+9</b>: 99 appearances, 89 goals.`,
     rows: () => POOL().filter(a => a.goals != null)
       .sort((a, b) => (b.goals - a.goals) || (b.apps - a.apps)).slice(0, 60),
+    rankBy: a => `${a.goals}/${a.apps}`,
     cols: [
       ['', a => art(a)],
       ['Player', a => `#${a.id} <span style="color:var(--chalk-faint)">${a.career}</span>`],
@@ -448,7 +453,7 @@ const TABS = {
       ['Pos', a => a.pos],
       ['Apps', a => a.apps, 1],
       ['Goals', a => `<b style="color:var(--amber)">${a.goals}</b>`, 1],
-      ['G/App', a => (a.goals / a.apps).toFixed(2), 1],
+      ['G/App', a => a.apps ? (a.goals / a.apps).toFixed(2) : '—', 1],
     ],
   },
   nations: {
@@ -465,9 +470,10 @@ const TABS = {
   },
   oddities: {
     label: 'Oddities',
-    lede: () => `The cards that break their own type. A defensive career with goals against its name,
-      a poacher who barely played, a shaven-headed 5%-er. Every one of these is a real record
-      somebody is holding.`,
+    lede: () => `A career sets the tens digit of both numbers, so a strike rate is really a
+      property of the <b>career</b>, not of the card — rank by it and you just get a list of every
+      Poacher. What actually varies card to card is the two <b>+0…+9</b> traits, so these are the
+      cards that rolled something extreme, plus the two flat-out rare states.`,
     custom: odditiesView,
   },
 };
@@ -490,11 +496,11 @@ function renderTable() {
   if (t.custom) { t.custom(wrap); return; }
   const table = document.createElement('table');
   wrap.appendChild(table);
-  const rows = t.rows();
+  const rows = withRanks(t.rows(), t.rankBy);
   table.innerHTML =
     `<thead><tr><th></th>${t.cols.map(c => `<th${c[2] ? ' class="num"' : ''}>${c[0]}</th>`).join('')}</tr></thead>
-     <tbody>${rows.map((a, i) =>
-      `<tr data-id="${a.id}"><td class="rank">${i + 1}</td>${t.cols.map(c =>
+     <tbody>${rows.map(([rank, a]) =>
+      `<tr data-id="${a.id}"><td class="rank">${rank}</td>${t.cols.map(c =>
         `<td class="${c[2] ? 'num' : ''}${c[0] === '' ? ' art' : ''}">${c[1](a)}</td>`).join('')}</tr>`).join('')}
      </tbody>`;
   hydrate(table);
@@ -521,7 +527,7 @@ function nationsView(wrap) {
              xiGoals: xi.reduce((s, a) => s + a.goals, 0),
              xiApps:  xi.reduce((s, a) => s + a.apps, 0),
              full: xi.length === 11,
-             best: players.slice().sort((x, y) => (y.goals * 2 + y.apps) - (x.goals * 2 + x.apps))[0] };
+             best: players.slice().sort((x, y) => y.goals - x.goals || y.apps - x.apps)[0] };
   }).sort((a, b) => b.xiGoals - a.xiGoals);
 
   table.innerHTML =
@@ -548,9 +554,13 @@ function nationsView(wrap) {
 function pickXI(pool) {
   const out = [], used = new Set();
   for (const [pos, n] of FORMATION) {
+    // defenders are picked on appearances, everyone else on goals — a career
+    // with a zero goals baseline can never win a goals contest
+    const by = pos === 'DEF'
+      ? (x, y) => y.apps - x.apps || y.goals - x.goals
+      : (x, y) => y.goals - x.goals || y.apps - x.apps;
     pool.filter(a => a.pos === pos && !used.has(a.id))
-        .sort((x, y) => (y.goals * 2 + y.apps) - (x.goals * 2 + x.apps))
-        .slice(0, n).forEach(a => { out.push(a); used.add(a.id); });
+        .sort(by).slice(0, n).forEach(a => { out.push(a); used.add(a.id); });
   }
   return out;
 }
@@ -595,17 +605,27 @@ function hydrateArt(root) {
 
 function odditiesView(wrap) {
   const P = POOL().filter(a => a.apps != null);
+  const mod = a => [a.t[APPS] - 1, a.t[GOALS] - 1];      // the two +0..9 rolls
+  const perfect = P.filter(a => a.apps === 99 && a.goals === 89);
   const groups = [
-    ['Defenders who score', 'A career with a zero goals base — and the +N trait pushed it above zero anyway.',
-      P.filter(a => a.pos === 'DEF' && a.goals > 0).sort((a, b) => b.goals - a.goals).slice(0, 8)],
-    ['Deadliest ratio', 'Most goals per appearance in the whole collection.',
-      P.filter(a => a.apps >= 10).sort((a, b) => b.goals / b.apps - a.goals / a.apps).slice(0, 8)],
-    ['Never played', 'Zero appearances, zero goals. The bench that never got up.',
+    ['99 and 89 — the highest card there is',
+      `All Time Great starts at 90/80, so a +9/+9 roll on it is the best record the collection can
+       produce. About ${(D.meta.alive / 6400).toFixed(1)} should exist across all ${fmt(D.meta.alive)}
+       living cards${perfect.length ? '.' : ' — and not one has been opened yet.'}`,
+      perfect.slice(0, 8)],
+    ['Maxed out', 'Both traits rolled +9, whatever the career. One card in a hundred.',
+      P.filter(a => mod(a)[0] === 9 && mod(a)[1] === 9)
+       .sort((a, b) => (b.apps + b.goals) - (a.apps + a.goals)).slice(0, 8)],
+    ['Never kicked a ball', 'Zero appearances and zero goals: a fringe career that also rolled +0/+0.',
       P.filter(a => a.apps === 0 && a.goals === 0).slice(0, 8)],
+    ['Defenders who found the net nine times',
+      'A career with no goals in its baseline, and the goals trait still came up +9.',
+      P.filter(a => a.pos === 'DEF' && mod(a)[1] === 9)
+       .sort((a, b) => b.apps - a.apps).slice(0, 8)],
+    ['The iron men', 'Most appearances, and never once on the scoresheet.',
+      P.filter(a => a.goals === 0).sort((a, b) => b.apps - a.apps).slice(0, 8)],
     ['Bald — a 5% signal', 'Hair is drawn on 95% of cards, so no hair is rarer than any hairstyle.',
       POOL().filter(a => a.t[8] === 0).sort((a, b) => a.clsRank - b.clsRank).slice(0, 8)],
-    ['The iron men', 'Most appearances, fewest goals — the ones who simply never came off.',
-      P.filter(a => a.goals === 0).sort((a, b) => b.apps - a.apps).slice(0, 8)],
   ];
   const box = document.createElement('div');
   box.innerHTML = groups.map(([h, sub, list]) => `
@@ -619,7 +639,7 @@ function odditiesView(wrap) {
          <div style="font-size:var(--fs-micro);color:var(--chalk-dim);margin-top:5px">#${a.id}</div>
          <div style="font-size:var(--fs-micro)">${a.career || ''}</div>
          <div style="font-size:var(--fs-micro);color:var(--chalk-faint)">${a.apps ?? '—'} / ${a.goals ?? '—'}</div>
-       </div>`).join('') : '<p class="empty" style="padding:20px">None revealed yet.</p>'}</div>`).join('');
+       </div>`).join('') : '<p class="empty" style="padding:20px 0;text-align:left">Not one has been revealed yet.</p>'}</div>`).join('');
   wrap.appendChild(box);
   hydrateArt(box);
   box.querySelectorAll('[data-id]').forEach(d => d.onclick = () => openCard(BY_ID.get(+d.dataset.id)));

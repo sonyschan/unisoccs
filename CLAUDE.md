@@ -468,6 +468,28 @@ full-bleed section (topbar, hero, wall) spans the viewport; only the inner colum
 three read from the same token so their edges line up. An index earns its width: 2560px gives
 **9 cards per row**, not 6.
 
+**Equal values must share a rank.** Sequential ranking handed 314 and 315 to two cards with an
+identical OpenRarity score — inventing an order the data does not contain, on the same page that
+says the score's fine ordering is noise. Everything now uses competition ranking (1, 2, 2, 4), and
+**at the precision the site prints**: two cards both shown as 0.875582 are never split on a hidden
+ninth decimal.
+
+**A tier belongs to a CLASS, and is cut on DESIGN probability.** Cutting the top 1% at a percentile
+of revealed cards sliced straight through a class — measured: 8 cards with identical odds, 3 wearing
+a gold badge and 5 not, separated by counting noise; 106 cards were affected across the three tiers.
+Cutting on observed counts also moves as reveal proceeds, quietly breaking the promise that a card's
+class never changes under it. Tiers now accumulate design probability over all 32 possible classes,
+so they never move, and `pTop1` on the Sealed page uses **the same t1 set** the badge does — before
+this, the two "top 1%"s were different things (one by IC, one by probability).
+
+**A leaderboard over a derived stat is usually a leaderboard over the CAREER.** "Deadliest ratio"
+was 8/8 Impact Sub and Super Sub, because strike rate is essentially `goalsBase/appsBase` and only
+those two careers have a 1.0 baseline. Raising the appearance gate just swapped which career won
+(≥25 Poacher, ≥60 All Time Great). Same for "defenders who score": 685 of ~780 defenders qualify,
+because a zero baseline plus any non-zero roll counts. **The only per-card variation is the two
++0…+9 traits** — Oddities is now built on those, plus the two genuinely rare states (0/0, and the
+99/89 maximum, of which zero have been opened against 1.2 expected).
+
 **JavaScript re-sorts integer-like object keys, so JSON order is not order.** `data/index.json`
 emitted `classes` keyed by the 5-bit presence mask, rarest first. The browser enumerated them
 `0, 1, 4, 5, …` — ascending numeric — so the Method page's "rarest classes" table listed an
