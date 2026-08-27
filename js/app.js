@@ -16,7 +16,7 @@ let ART_LAYERS = [];                 // the 10 scored art layers
 const CAREER = 10, APPS = 11, GOALS = 12;
 
 /* ---------------------------------------------------------------- state */
-const F = { layers: {}, sealedLayer: {}, tier: null };
+const F = { layers: {}, sealedLayer: {}, tier: null, pos: null };
 let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
 
 /* ---------------------------------------------------------------- boot */
@@ -157,11 +157,12 @@ function matches(a, skip) {
     if (F.sealedLayer[li] && a.t[li] !== SEALED) return false;
   }
   if (F.tier && a.tier !== F.tier) return false;
+  if (F.pos && a.pos !== F.pos) return false;
   return true;
 }
 const anyFilter = () =>
   Object.values(F.layers).some(s => s.size) ||
-  Object.values(F.sealedLayer).some(Boolean) || F.tier;
+  Object.values(F.sealedLayer).some(Boolean) || F.tier || F.pos;
 
 /* Base population. Revealed-only by default: mixing the sealed 60% in makes
    every facet count a lie and the grid mostly grey. But "show me the cards
@@ -184,7 +185,7 @@ function filtered(skip) {
    panel dies — you can never add Brazil. */
 const facetCache = new Map();
 const sig = () => JSON.stringify([
-  Object.entries(F.layers).map(([k, v]) => [k, [...v]]), F.sealedLayer, F.tier]);
+  Object.entries(F.layers).map(([k, v]) => [k, [...v]]), F.sealedLayer, F.tier, F.pos]);
 function facetCounts(li) {
   const k = sig() + '|' + li;
   if (facetCache.has(k)) return facetCache.get(k);
@@ -198,6 +199,8 @@ function facetCounts(li) {
 function buildRail() {
   const rail = $('#rail');
   const tiers = [['t1', 'Top 1%'], ['t2', 'Top 3%'], ['t3', 'Top 10%']];
+  const positions = [['DEF', 'Defenders'], ['MID', 'Midfielders'],
+                     ['FWD', 'Forwards'], ['FRINGE', 'Never played']];
   let html = `<p class="rail__key"><i></i>
       <span>Green bars are how often a layer is drawn at all &mdash; only five of
       the thirteen are optional. Rows are lit by how unlikely that value is
@@ -207,7 +210,14 @@ function buildRail() {
     <div class="sect__b">${tiers.map(([k, l]) =>
       `<button class="f" data-tier="${k}" aria-pressed="false">
          <span></span><span class="f__n">${l}</span><span class="f__c" data-c></span></button>`).join('')}
-    </div></div>`;
+    </div></div>
+    <div class="sect" data-open="1" data-sect="pos">
+      <div class="sect__h" title="Position comes from the career: no goals in the baseline is a defender, scoring in over half the games is a forward"><h3>Position</h3>
+        <span class="sect__n">from career</span></div>
+      <div class="sect__b">${positions.map(([k, l]) =>
+        `<button class="f" data-pos="${k}" aria-pressed="false">
+           <span></span><span class="f__n">${l}</span><span class="f__c" data-c></span></button>`).join('')}
+      </div></div>`;
 
   for (const L of LAYERS) {
     const opts = [];
@@ -236,6 +246,8 @@ function buildRail() {
   $$('#rail .f').forEach(b => b.onclick = () => {
     if (b.dataset.tier) {
       F.tier = F.tier === b.dataset.tier ? null : b.dataset.tier;
+    } else if (b.dataset.pos) {
+      F.pos = F.pos === b.dataset.pos ? null : b.dataset.pos;
     } else {
       const li = +b.dataset.l, el = +b.dataset.e;
       (F.layers[li] ||= new Set());
@@ -261,6 +273,14 @@ function paintSwatches(sect) {
 function updateRail() {
   const tierCounts = { t1: 0, t2: 0, t3: 0 };
   for (const a of filtered(null)) if (a.tier) tierCounts[a.tier]++;
+  const posCounts = {};
+  for (const a of filtered(null)) if (a.pos) posCounts[a.pos] = (posCounts[a.pos] || 0) + 1;
+  $$('#rail .f[data-pos]').forEach(b => {
+    const n = posCounts[b.dataset.pos] || 0;
+    b.querySelector('[data-c]').textContent = fmt(n);
+    b.setAttribute('aria-pressed', F.pos === b.dataset.pos);
+    b.classList.toggle('is-zero', !n);
+  });
   $$('#rail .f[data-tier]').forEach(b => {
     b.querySelector('[data-c]').textContent = fmt(tierCounts[b.dataset.tier] || 0);
     b.setAttribute('aria-pressed', F.tier === b.dataset.tier);
@@ -388,7 +408,8 @@ function render() {
 
 function renderChips() {
   const out = [];
-  if (F.tier) out.push(`<button class="chip" data-clear="tier"><u>Rarity</u> ${{ t1: 'Top 1%', t2: 'Top 3%', t3: 'Top 10%' }[F.tier]} &times;</button>`);
+  if (F.tier) out.push(`<button class="chip" data-clear="tier"><u>Rarity</u> ${TIER_LABEL[F.tier]} &times;</button>`);
+  if (F.pos) out.push(`<button class="chip" data-clear="pos"><u>Position</u> ${POS_NAME[F.pos]} &times;</button>`);
   for (const li in F.layers) for (const el of F.layers[li])
     out.push(`<button class="chip" data-l="${li}" data-e="${el}"><u>${LAYERS[li].name}</u> ${label(+li, el)} &times;</button>`);
   if (out.length > 1) out.push('<button class="chip chip--clear" data-clear="all">Clear all</button>');
@@ -396,9 +417,10 @@ function renderChips() {
   $$('#chips .chip').forEach(c => c.onclick = () => {
     if (c.dataset.clear === 'all') {
       if (traitRoute()) { location.href = '/'; return; }
-      F.layers = {}; F.sealedLayer = {}; F.tier = null;
+      F.layers = {}; F.sealedLayer = {}; F.tier = null; F.pos = null;
     }
     else if (c.dataset.clear === 'tier') F.tier = null;
+    else if (c.dataset.clear === 'pos') F.pos = null;
     else F.layers[c.dataset.l].delete(+c.dataset.e);
     facetCache.clear(); page = 1; render();
   });
@@ -579,15 +601,21 @@ function pickXI(pool) {
   return out;
 }
 
-const FORMATION = [['DEF', 4], ['MID', 3], ['AM', 1], ['FWD', 3]];
+const FORMATION = [['DEF', 4], ['MID', 4], ['FWD', 3]];
+const POS_NAME = { DEF: 'Defender', MID: 'Midfielder', FWD: 'Forward', FRINGE: 'No position' };
+const POS_WHY = {
+  DEF: 'a career whose baseline has no goals in it at all',
+  MID: 'scores now and then, but is not a front-line scorer',
+  FWD: 'scores in more than half the games played',
+  FRINGE: 'has never played a game, so cannot be picked',
+};
 
 /* Where each shirt stands, as a percentage of the pitch. Attacking upward, and
    no goalkeeper because the 64 careers do not contain one. */
 const SPOTS = {
-  DEF: [[15, 82], [38, 86], [62, 86], [85, 82]],
-  MID: [[24, 60], [50, 63], [76, 60]],
-  AM:  [[50, 40]],
-  FWD: [[22, 17], [50, 13], [78, 17]],
+  DEF: [[15, 84], [38, 88], [62, 88], [85, 84]],
+  MID: [[15, 57], [38, 61], [62, 61], [85, 57]],
+  FWD: [[22, 20], [50, 15], [78, 20]],
 };
 
 /** A best XI laid out on a pitch. Shared by My Squad and the nation tables. */
@@ -609,11 +637,38 @@ function pitchHTML(xi) {
              <div class="pos__n">${a.career}</div>
              <div class="pos__r">${a.apps}/${a.goals}</div></div>`
         : `<div class="pos pos--empty" style="left:${x}%;top:${y}%">
-             <canvas></canvas><div class="pos__n">${pos}</div>
-             <div class="pos__r">unfilled</div></div>`;
+             <canvas></canvas><div class="pos__n">${POS_NAME[pos]}</div>
+             <div class="pos__r">no card</div></div>`;
     });
   }
   return out + '</div>';
+}
+
+/** Who did not make the eleven, and why. It is the first thing anyone asks. */
+function benchHTML(all, xi) {
+  const inXI = new Set(xi.map(a => a.id));
+  const out = all.filter(a => !inXI.has(a.id));
+  if (!out.length) return '';
+  const byPos = {};
+  for (const a of out) (byPos[a.pos] ||= []).push(a);
+  const order = ['FWD', 'MID', 'DEF', 'FRINGE'];
+  const lines = order.filter(p => byPos[p]).map(pos => {
+    const list = byPos[pos];
+    const played = xi.filter(a => a.pos === pos).length;
+    const why = pos === 'FRINGE'
+      ? `No position &mdash; ${POS_WHY.FRINGE}`
+      : `${POS_NAME[pos]}s &mdash; all ${played} ${POS_NAME[pos].toLowerCase()} shirt${
+          played === 1 ? ' is' : 's are'} taken by a better record`;
+    return `<div class="bench__k">${why}</div>
+      <div class="sealrow">${list.slice(0, 12).map(a => `<div class="sealtile" data-id="${a.id}">
+        <canvas data-art="${a.id}"></canvas>
+        <div class="sealtile__id">#${a.id}</div>
+        <div class="sealtile__n">${a.career}<span>${a.apps}/${a.goals}</span></div>
+      </div>`).join('')}${list.length > 12
+        ? `<p class="empty" style="align-self:center;padding:0 8px">+${list.length - 12} more</p>`
+        : ''}</div>`;
+  }).join('');
+  return `<h4 class="bench__h">Not in the eleven &mdash; ${fmt(out.length)}</h4>${lines}`;
 }
 
 function hydratePitch(root) {
@@ -633,9 +688,10 @@ function showXI(el) {
       <h2>${name}<small>BEST XI &middot; PICKED BY CAREER RECORD</small></h2>
     </div>
     <div style="grid-column:1/-1;display:flex;justify-content:center">${pitchHTML(picked)}</div>
-    ${picked.length < 11 ? `<p class="lede" style="grid-column:1/-1;margin:0">Only
-      ${picked.length} revealed ${name} players fit this shape so far — the rest of the shirts are
-      still sealed somewhere in the collection.</p>` : ''}`);
+    <p class="lede" style="grid-column:1/-1;margin:0">Four at the back, four in midfield, three up
+      front. Position comes from the career: no goals in the baseline makes a defender, scoring in
+      more than half the games makes a forward.${picked.length < 11
+        ? ` Only ${picked.length} revealed ${name} players fit this shape so far.` : ''}</p>`);
   hydratePitch($('#sheet'));
 }
 
@@ -928,7 +984,8 @@ function openCard(a) {
          style="font-size:var(--fs-micro);color:var(--chalk-faint)">View on uToken &#8599;</a>
     </div>
     <div>
-      <h2>#${a.id}<small>${a.career || 'NOT YET REVEALED'}${a.pos ? ' · ' + a.pos : ''}</small></h2>
+      <h2>#${a.id}<small>${a.career || 'NOT YET REVEALED'}${
+        a.pos ? ' &middot; ' + POS_NAME[a.pos] : ''}</small></h2>
       ${settled ? `
         <div class="panel"><h4>Rarity class</h4>
           <div class="big" style="color:${hasKit(a) ? 'var(--kit)' : 'var(--chalk)'}">
@@ -953,6 +1010,8 @@ function openCard(a) {
         <p>${a.career} starts at ${a.apps - (a.t[APPS] - 1)}/${a.goals - (a.t[GOALS] - 1)};
            this card's <b>+${a.t[APPS] - 1}</b> and <b>+${a.t[GOALS] - 1}</b> traits are the units digit.
            ${a.apps ? `That is <b>${(a.goals / a.apps).toFixed(2)}</b> goals per appearance.` : ''}</p>
+        ${a.pos ? `<p>Plays as a <b>${POS_NAME[a.pos].toLowerCase()}</b> &mdash; ${POS_WHY[a.pos]}.
+          Position is read off the career, not off this card's roll.</p>` : ''}
       </div>` : ''}
       ${settled && a.apps != null ? `<div class="panel"><h4>How many should exist</h4>
         <p style="margin:0 0 4px">The layers are drawn independently and evenly, so these are
@@ -1180,11 +1239,15 @@ function renderSquad(cards, missing) {
       1% of the collection. That is exact arithmetic over each card's own odds, not a guess
       &mdash; though of course it will land as a whole number.</p>` : ''}
 
-    ${xi.length ? `<h3 class="sealh">Best XI</h3>
-      <p class="lede">Picked from the cards you hold — four at the back, three in midfield, one
-        behind three up front. ${xi.length < 11
-          ? `<b>${11 - xi.length}</b> of the eleven shirts cannot be filled yet.` : ''}</p>
-      ${pitchHTML(xi)}` : ''}
+    ${withRec.length ? `<h3 class="sealh">Best XI</h3>
+      <p class="lede">Four defenders, four in midfield, three up front &mdash; eleven outfield
+        players, because there is no goalkeeper among the 64 careers. A card's position comes from
+        its <b>career</b>: no goals in the baseline makes a defender, scoring in more than half the
+        games makes a forward, everything between is a midfield player.
+        ${xi.length < 11 ? `<b>${11 - xi.length}</b> shirt${11 - xi.length === 1 ? '' : 's'} cannot
+          be filled &mdash; you have nobody of that type yet.` : ''}</p>
+      ${pitchHTML(xi)}
+      ${benchHTML(withRec, xi)}` : ''}
 
     <h3 class="sealh">Every card</h3>
     <div class="grid" id="sq-grid"></div>`;

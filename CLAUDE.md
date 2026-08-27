@@ -433,6 +433,20 @@ tools/        rpc.py · extract_elements.py (one-off) · build_index.py
 
 ### The pitch
 
+**Positions are three buckets, and the formation is 4-4-3.** A separate attacking-midfield band held
+16 of the 64 careers — a quarter of every card — while the formation gave it one shirt, so those
+cards could never get on the pitch. A holder with nine cards, four of them in that band, fielded
+five. Simulated over random holdings, folding it into midfield and playing 4-4-3 fields a full extra
+player at nine cards (6.8 → 7.8). Eleven outfield, no goalkeeper.
+
+**Nobody knows what DEF means, so do not print DEF.** Positions read as Defender / Midfielder /
+Forward, the derivation is stated wherever an XI appears ("no goals in the baseline makes a
+defender"), the rail has a Position filter, and the card sheet says which one this card is and why.
+
+**Show the bench.** "Why is this card not playing?" is the first thing anyone asks, and the answer is
+almost always that a better record holds that shirt. `benchHTML()` lists everyone left out, grouped
+by position, with the reason.
+
 `pitchHTML()` / `hydratePitch()` in `js/app.js` lay a best XI out in 4-3-1-3, attacking upward, with
 no goalkeeper because the 64 careers do not contain one. Shared by My Squad and the nation tables —
 one component, one formation, one set of spots (`SPOTS`).

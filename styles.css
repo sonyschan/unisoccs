@@ -333,6 +333,10 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
   .pos canvas{width:48px;height:48px;border-width:1px}
 }
 
+.bench__h{font-family:var(--display);font-weight:700;font-size:21px;text-transform:uppercase;
+  letter-spacing:var(--ls-narrow);color:var(--chalk-dim);margin:22px 0 2px}
+.bench__k{font-size:var(--fs-micro);color:var(--chalk-faint);margin:12px 0 6px}
+
 .squadin{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
 #sq-addr{flex:1;min-width:260px;font:inherit;font-size:var(--fs-sub);
   background:var(--pitch-deep);border:1px solid var(--line);border-radius:2px;

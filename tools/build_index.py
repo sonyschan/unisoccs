@@ -154,7 +154,12 @@ def position(career_el):
     if a == 0:
         return "FRINGE"                       # Prospect / Trialist / Youth Product
     r = g / a
-    return "DEF" if r == 0 else "MID" if r < 0.3 else "AM" if r < 0.55 else "FWD"
+    # Three buckets, not four. A separate attacking-midfield band held 16 of the
+    # 64 careers — a quarter of every card — while the formation gave it one
+    # shirt, so those cards could never get on the pitch. Simulated over random
+    # holdings, folding it into midfield and playing 4-4-3 fields a full extra
+    # player at nine cards (6.8 -> 7.8).
+    return "DEF" if r == 0 else "MID" if r < 0.55 else "FWD"
 
 def competition_rank(items, key):
     """Standard competition ranking: 1, 2, 2, 4. Equal values share a rank.
