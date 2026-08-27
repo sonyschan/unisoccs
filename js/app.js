@@ -194,8 +194,9 @@ function buildRail() {
   const rail = $('#rail');
   const tiers = [['t1', 'Top 1%'], ['t2', 'Top 3%'], ['t3', 'Top 10%']];
   let html = `<p class="rail__key"><i></i>
-      <span>Green bars are how often a layer is drawn at all &mdash;
-      only five of the thirteen are optional.</span></p>
+      <span>Green bars are how often a layer is drawn at all &mdash; only five of
+      the thirteen are optional. Rows are lit by how unlikely that value is
+      <b>by design</b>, so evenly-drawn layers all look alike, because they are.</span></p>
     <div class="sect" data-open="1" data-sect="tier">
     <div class="sect__h"><h3>Rarity</h3><span class="sect__n">class</span></div>
     <div class="sect__b">${tiers.map(([k, l]) =>
@@ -262,13 +263,13 @@ function updateRail() {
   });
   for (const L of LAYERS) {
     const counts = facetCounts(L.index);
-    const max = Math.max(1, ...counts.values());
     const sect = $(`#rail .sect[data-sect="${L.index}"]`);
     let active = 0;
     sect.querySelectorAll('.f[data-l]').forEach(b => {
       const el = +b.dataset.e, n = counts.get(el) || 0;
       b.querySelector('[data-c]').textContent = fmt(n);
-      b.style.setProperty('--_bg', floodlight(n, max));
+      b.style.setProperty('--_bg', floodlight(L.index, el));
+      b.title = `${label(L.index, el)} — 1 in ${Math.round(1 / P_LAYER(L.index, el)).toLocaleString()} by design`;
       b.classList.toggle('is-zero', n === 0);
       const on = F.layers[L.index]?.has(el) || false;
       b.setAttribute('aria-pressed', on);
@@ -280,11 +281,20 @@ function updateRail() {
 }
 
 /* Rarity comes into the light: common values sit in the dark, rare ones are lit.
-   Green is reserved for selection, so it can never be confused with frequency. */
-function floodlight(n, max) {
-  if (!n) return 'transparent';
-  const intensity = 1 - n / max;
-  return `rgba(206,226,255,${(0.05 + 0.40 * intensity).toFixed(3)})`;
+   Green is reserved for selection, so it can never be confused with frequency.
+
+   Lit by DESIGN probability, never by the observed count. Within a layer every
+   element is equally likely, so a count ramp was drawing Peru three times
+   brighter than France and Forward four times brighter than Trialist — pure
+   counting noise, presented as rarity. On one scale across the whole rail this
+   instead says something true and comparable: a given Career (1 in 64) really
+   is rarer than a given Nation (1 in 32), and Bald (5%) really is rarer than
+   any named hairstyle (6.8%). Uniform layers all look alike, which is correct. */
+const IC_MIN = 0.0145, IC_MAX = 6.644;          // -log2(0.99) .. -log2(0.01)
+function floodlight(li, el) {
+  const ic = -Math.log2(P_LAYER(li, el));
+  const t = Math.max(0, Math.min(1, (ic - IC_MIN) / (IC_MAX - IC_MIN)));
+  return `rgba(206,226,255,${(0.03 + 0.42 * t).toFixed(3)})`;
 }
 
 /* ---------------------------------------------------------------- sort */

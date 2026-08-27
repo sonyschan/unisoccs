@@ -468,6 +468,14 @@ full-bleed section (topbar, hero, wall) spans the viewport; only the inner colum
 three read from the same token so their edges line up. An index earns its width: 2560px gives
 **9 cards per row**, not 6.
 
+**Light the facet rail by DESIGN probability, never by the observed count.** A count-based heat ramp
+drew Peru three times brighter than France and Forward four times brighter than Trialist — on layers
+where every value is equally likely, so it was rendering counting noise as rarity, in the one place
+people scan to find rare traits. On a single design-probability scale across the whole rail, uniform
+layers all look alike (correct), absence stands out where it should (Bald 5% brighter than any
+hairstyle at 6.8%), and values become comparable **across** layers: a given Career (1 in 64) really
+is rarer than a given Nation (1 in 32).
+
 **Do not rank a population that has nothing to rank on.** The Sealed page listed 120 unopened cards
 "ranked by the exact probability of finishing in the rarest 1%". But 5,097 unopened cards hold only
 **7 distinct probabilities**, and 4,840 of them (95%) share one: they have revealed nothing that
