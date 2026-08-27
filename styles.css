@@ -298,6 +298,41 @@ tbody tr:nth-child(2) .rank{color:var(--t2)}
 tbody tr:nth-child(3) .rank{color:var(--t3)}
 .tw{overflow-x:auto}
 
+/* ---------------------------------------------------------------- pitch
+   The turf greens are lifted from the Backdrop layer, so the pitch a squad
+   stands on is the same pitch printed on every card. */
+.pitch{position:relative;width:100%;max-width:660px;aspect-ratio:.72;margin:6px 0 10px;
+  border:1px solid var(--line);border-radius:3px;overflow:hidden;
+  background:repeating-linear-gradient(to bottom,#3e5a3a 0 8%,#44603e 8% 16%)}
+.pitch__l{position:absolute;border:2px solid rgba(238,241,248,.20);pointer-events:none}
+.pitch__half{left:0;right:0;top:50%;height:0;border-width:0 0 2px}
+.pitch__circle{left:50%;top:50%;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);
+  border-radius:50%}
+.pitch__boxT{left:22%;right:22%;top:0;height:15%;border-width:0 2px 2px}
+.pitch__boxB{left:22%;right:22%;bottom:0;height:15%;border-width:2px 2px 0}
+.pitch__sixT{left:36%;right:36%;top:0;height:6%;border-width:0 2px 2px}
+.pitch__sixB{left:36%;right:36%;bottom:0;height:6%;border-width:2px 2px 0}
+
+.pos{position:absolute;transform:translate(-50%,-50%);text-align:center;cursor:pointer;
+  width:86px}
+.pos canvas{width:72px;height:72px;display:block;margin:0 auto;background:var(--pitch);
+  border:2px solid rgba(238,241,248,.75);border-radius:2px;
+  box-shadow:0 4px 10px rgba(0,0,0,.45)}
+.pos:hover canvas{border-color:var(--turf)}
+.pos__n{font-family:var(--display);font-weight:700;font-size:var(--fs-micro);line-height:1.1;
+  color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pos__r{font-size:var(--fs-micro);color:rgba(255,255,255,.82);
+  text-shadow:0 1px 3px rgba(0,0,0,.9);font-variant-numeric:tabular-nums}
+.pos--empty canvas{border-style:dashed;border-color:rgba(238,241,248,.35);
+  background:rgba(0,0,0,.22);box-shadow:none}
+.pos--empty .pos__n{color:rgba(255,255,255,.55)}
+@media(max-width:620px){
+  .pitch{aspect-ratio:.66}
+  .pos{width:60px}
+  .pos canvas{width:48px;height:48px;border-width:1px}
+}
+
 .squadin{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
 #sq-addr{flex:1;min-width:260px;font:inherit;font-size:var(--fs-sub);
   background:var(--pitch-deep);border:1px solid var(--line);border-radius:2px;

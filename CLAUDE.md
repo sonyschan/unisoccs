@@ -431,6 +431,20 @@ tools/        rpc.py · extract_elements.py (one-off) · build_index.py
 **Payload: 101 KB gz index + 31 KB gz sprites.** Every card is composited in the browser from the
 175 element sprites; there is not a single per-asset image in the repo.
 
+### The pitch
+
+`pitchHTML()` / `hydratePitch()` in `js/app.js` lay a best XI out in 4-3-1-3, attacking upward, with
+no goalkeeper because the 64 careers do not contain one. Shared by My Squad and the nation tables —
+one component, one formation, one set of spots (`SPOTS`).
+
+**The turf greens are lifted from the Backdrop layer** (`#3e5a3a` / `#44603e`), so a squad stands on
+the same pitch that is printed on every card — the same principle as drawing every number on the
+site with the collection's own numerals.
+
+Shirt art is 24×3 = 72px, dropping to 24×2 = 48px under 620px. Verified at 1440 and 360: eleven
+shirts, none outside the pitch, none overlapping, no document overflow. That geometry check matters
+more than a screenshot here, because the failure mode is tokens silently stacking on each other.
+
 ### Aesthetic — "Floodlit"
 
 Night match printed as a sticker album page. The page ground is the contract's own `#1a1c2c`, so a

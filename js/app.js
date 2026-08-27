@@ -580,36 +580,65 @@ function pickXI(pool) {
 }
 
 const FORMATION = [['DEF', 4], ['MID', 3], ['AM', 1], ['FWD', 3]];
+
+/* Where each shirt stands, as a percentage of the pitch. Attacking upward, and
+   no goalkeeper because the 64 careers do not contain one. */
+const SPOTS = {
+  DEF: [[15, 82], [38, 86], [62, 86], [85, 82]],
+  MID: [[24, 60], [50, 63], [76, 60]],
+  AM:  [[50, 40]],
+  FWD: [[22, 17], [50, 13], [78, 17]],
+};
+
+/** A best XI laid out on a pitch. Shared by My Squad and the nation tables. */
+function pitchHTML(xi) {
+  const byPos = {};
+  for (const a of xi) (byPos[a.pos] ||= []).push(a);
+  let out = `<div class="pitch">
+    <div class="pitch__l pitch__half"></div><div class="pitch__l pitch__circle"></div>
+    <div class="pitch__l pitch__boxT"></div><div class="pitch__l pitch__boxB"></div>
+    <div class="pitch__l pitch__sixT"></div><div class="pitch__l pitch__sixB"></div>`;
+  for (const [pos] of FORMATION) {
+    const line = (byPos[pos] || []);
+    SPOTS[pos].forEach(([x, y], i) => {
+      const a = line[i];
+      out += a
+        ? `<div class="pos" style="left:${x}%;top:${y}%" data-id="${a.id}"
+             title="#${a.id} · ${a.career} · ${a.apps} apps, ${a.goals} goals">
+             <canvas data-art="${a.id}"></canvas>
+             <div class="pos__n">${a.career}</div>
+             <div class="pos__r">${a.apps}/${a.goals}</div></div>`
+        : `<div class="pos pos--empty" style="left:${x}%;top:${y}%">
+             <canvas></canvas><div class="pos__n">${pos}</div>
+             <div class="pos__r">unfilled</div></div>`;
+    });
+  }
+  return out + '</div>';
+}
+
+function hydratePitch(root) {
+  root.querySelectorAll('.pos canvas[data-art]').forEach(c => {
+    const a = BY_ID.get(+c.dataset.art);
+    if (a) Art.paint(c, a.t, 3);
+  });
+  root.querySelectorAll('.pos[data-id]').forEach(p =>
+    p.onclick = () => openCard(BY_ID.get(+p.dataset.id)));
+}
 function showXI(el) {
   const pool = ASSETS.filter(a => a.lv === 13 && a.t[2] === el && a.apps != null);
   const picked = pickXI(pool);
   const name = LAYERS[2].names[el - 1];
-  const short = picked.length < 11;
   openSheet(`
-    <div class="sheet__art" style="grid-column:1/-1">
-      <h2 style="text-align:center">${name}<small>BEST XI · picked by career record</small></h2>
+    <div style="grid-column:1/-1;text-align:center">
+      <h2>${name}<small>BEST XI &middot; PICKED BY CAREER RECORD</small></h2>
     </div>
-    <div style="grid-column:1/-1">
-      ${FORMATION.map(([pos]) => {
-        const line = picked.filter(a => a.pos === pos);
-        if (!line.length) return '';
-        return `<h4 style="font-family:var(--display);letter-spacing:var(--ls-mid);
-                   color:var(--chalk-faint);margin:14px 0 8px;font-size:14px">${pos}</h4>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">${line.map(a =>
-            `<div style="text-align:center;cursor:pointer" data-id="${a.id}">
-               <canvas data-art="${a.id}" style="width:96px;height:96px;background:var(--pitch);
-                 border:1px solid var(--line);border-radius:2px"></canvas>
-               <div style="font-size:var(--fs-micro);color:var(--chalk-dim);margin-top:4px">#${a.id}</div>
-               <div style="font-size:var(--fs-micro);color:var(--chalk)">${a.apps}/${a.goals}</div>
-             </div>`).join('')}</div>`;
-      }).join('')}
-      ${short ? `<p style="color:var(--chalk-faint);margin-top:16px;font-size:var(--fs-micro)">
-        Only ${picked.length} revealed ${name} players fit this shape so far —
-        ${11 - picked.length} slots are still sealed somewhere in the collection.</p>` : ''}
-    </div>`);
-  $$('#sheet [data-id]').forEach(d => d.onclick = () => openCard(BY_ID.get(+d.dataset.id)));
-  hydrateArt($('#sheet'));
+    <div style="grid-column:1/-1;display:flex;justify-content:center">${pitchHTML(picked)}</div>
+    ${picked.length < 11 ? `<p class="lede" style="grid-column:1/-1;margin:0">Only
+      ${picked.length} revealed ${name} players fit this shape so far — the rest of the shirts are
+      still sealed somewhere in the collection.</p>` : ''}`);
+  hydratePitch($('#sheet'));
 }
+
 function hydrateArt(root) {
   root.querySelectorAll('canvas[data-art]').forEach(c => {
     const a = BY_ID.get(+c.dataset.art);
@@ -1152,18 +1181,10 @@ function renderSquad(cards, missing) {
       &mdash; though of course it will land as a whole number.</p>` : ''}
 
     ${xi.length ? `<h3 class="sealh">Best XI</h3>
-      <p class="lede">Picked from the cards you hold, four at the back and three up front.
-        ${xi.length < 11 ? `Only ${xi.length} of the eleven shirts can be filled so far.` : ''}</p>
-      ${FORMATION.map(([pos]) => {
-        const line = xi.filter(a => a.pos === pos);
-        return line.length ? `<h4 style="font-family:var(--display);letter-spacing:var(--ls-mid);
-            color:var(--chalk-faint);margin:14px 0 8px;font-size:var(--fs-micro)">${pos}</h4>
-          <div class="sealrow">${line.map(a => `<div class="sealtile" data-id="${a.id}">
-            <canvas data-art="${a.id}"></canvas>
-            <div class="sealtile__id">#${a.id}</div>
-            <div class="sealtile__n">${a.career}<span>${a.apps}/${a.goals}</span></div>
-          </div>`).join('')}</div>` : '';
-      }).join('')}` : ''}
+      <p class="lede">Picked from the cards you hold — four at the back, three in midfield, one
+        behind three up front. ${xi.length < 11
+          ? `<b>${11 - xi.length}</b> of the eleven shirts cannot be filled yet.` : ''}</p>
+      ${pitchHTML(xi)}` : ''}
 
     <h3 class="sealh">Every card</h3>
     <div class="grid" id="sq-grid"></div>`;
@@ -1171,6 +1192,7 @@ function renderSquad(cards, missing) {
   $$('#sq-body .plate canvas').forEach((c, i) =>
     Art.number(c, stats[i][0], 5, cssVar(stats[i][2])));
   hydrateArt($('#sq-body'));
+  hydratePitch($('#sq-body'));
   const grid = $('#sq-grid');
   cards.slice().sort((a, b) => (a.clsRank ?? 99) - (b.clsRank ?? 99) || b.lv - a.lv || a.id - b.id)
        .forEach((a, i) => grid.appendChild(cardEl(a, i)));
