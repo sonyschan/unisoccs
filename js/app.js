@@ -80,7 +80,6 @@ const noneLabel = li => NONE[li] || 'None';
 function buildHero() {
   $('#h-alive').textContent = fmt(D.meta.alive);
   const hs = $('#h-sealed'); if (hs) hs.textContent = fmt(D.meta.sealed);
-  $('#s-n').textContent = fmt(D.meta.sealed);
   $('#f-built').textContent = new Date(D.meta.builtAt * 1000)
     .toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
@@ -645,28 +644,61 @@ function odditiesView(wrap) {
   box.querySelectorAll('[data-id]').forEach(d => d.onclick = () => openCard(BY_ID.get(+d.dataset.id)));
 }
 
-/* ---------------------------------------------------------------- sealed */
+/* ---------------------------------------------------------------- sealed
+   A ranked list here would be a lie: 95% of unopened cards share one number,
+   because they have revealed nothing that changes their odds. Only the handful
+   that HAVE are worth ranking; the rest get stated once. */
 function renderSealed() {
-  const rows = ASSETS.filter(a => a.lv < 13)
-    .sort((a, b) => (b.pTop1 - a.pTop1) || (b.lv - a.lv) || a.id - b.id).slice(0, 120);
-  const wrap = $('#stable').parentElement;
-  $('#stable').innerHTML =
-    `<thead><tr><th></th><th></th><th>Card</th><th>Opened</th><th>Known so far</th>
-       <th class="num">Chance of top 1%</th></tr></thead>
-     <tbody>${rows.map((a, i) => {
-      const known = a.t.map((e, li) => e !== SEALED && e !== 0 ? LAYERS[li].name : null)
-        .filter(Boolean).slice(0, 4).join(' · ');
-      return `<tr data-id="${a.id}">
-        <td class="rank">${i + 1}</td>
-        <td class="art">${art(a)}</td>
-        <td>#${a.id}</td>
-        <td><span style="color:${a.lv ? 'var(--turf)' : 'var(--sealed)'}">${a.lv}</span>
-            <span style="color:var(--chalk-faint)">/ 13</span></td>
-        <td style="color:var(--chalk-dim)">${known || '<i style="color:var(--sealed)">nothing at all</i>'}</td>
-        <td class="num"><b style="color:${a.pTop1 > .2 ? 'var(--amber)' : 'var(--chalk)'}">
-            ${(a.pTop1 * 100).toFixed(a.pTop1 >= .1 ? 0 : 2)}%</b></td></tr>`;
-    }).join('')}</tbody>`;
-  hydrate($('#stable'));
+  const P = ASSETS.filter(a => a.lv < 13);
+  const freq = new Map();
+  for (const a of P) freq.set(a.pTop1, (freq.get(a.pTop1) || 0) + 1);
+  const base = [...freq.entries()].sort((x, y) => y[1] - x[1])[0][0];   // the modal odds
+
+  const above  = P.filter(a => a.pTop1 > base).sort((a, b) => b.pTop1 - a.pTop1 || b.lv - a.lv);
+  const ruled  = P.filter(a => a.pTop1 === 0);
+  const atBase = P.filter(a => a.pTop1 === base);
+  const verge  = P.filter(a => a.lv > 0 && a.pTop1 <= base)
+                  .sort((a, b) => b.lv - a.lv || a.id - b.id).slice(0, 48);
+
+  const known = a => a.t.map((e, li) => e !== SEALED && e !== 0 ? LAYERS[li].name : null)
+                        .filter(Boolean).join(' · ') || 'nothing yet';
+
+  const tile = (a, note) => `<div class="sealtile" data-id="${a.id}">
+      <canvas data-art="${a.id}"></canvas>
+      <div class="sealtile__id">#${a.id}</div>
+      <div class="meter" title="${a.lv} of 13 layers opened">
+        ${Array.from({ length: 13 }, (_, k) => `<i class="${k < a.lv ? 'on' : ''}"></i>`).join('')}
+        <b>${a.lv}/13</b></div>
+      ${note ? `<div class="sealtile__n">${note}</div>` : ''}
+    </div>`;
+
+  $('#v-sealed').innerHTML = `
+    <p class="lede"><b>${fmt(P.length)}</b> soccs have never been fully opened. Reveal is driven by
+      trading rather than a clock, so there is no countdown — only odds, and for almost every card
+      those odds are identical. A card that has opened nothing has a
+      <b>${(base * 100).toFixed(2)}%</b> chance of finishing in the rarest 1%, and
+      <b>${fmt(atBase.length)}</b> of them sit exactly there. Ranking those against each other
+      would be inventing a difference, so we don't.</p>
+
+    <h3 class="sealh">The ${above.length} that already stand apart</h3>
+    <p class="lede">These have opened something that changes the arithmetic — a Foil, a Uniswap FC —
+      so their odds are genuinely better than everyone else's.</p>
+    <div class="sealrow">${above.map(a => tile(a,
+      `<b style="color:var(--amber)">${(a.pTop1 * 100).toFixed(a.pTop1 >= 0.1 ? 0 : 1)}%</b>
+       <span>${known(a)}</span>`)).join('') || '<p class="empty">None yet.</p>'}</div>
+
+    <h3 class="sealh">On the verge</h3>
+    <p class="lede">The furthest along without having turned up anything decisive. Every one of
+      these is still on the base rate — what changed is how little is left to find out.</p>
+    <div class="sealrow">${verge.map(a => tile(a, `<span>${known(a)}</span>`)).join('')}</div>
+
+    <h3 class="sealh">Already out of the running</h3>
+    <p class="lede"><b>${fmt(ruled.length)}</b> cards have opened enough to rule the rarest 1% out
+      entirely. They can still be worth holding — this is one axis of three.</p>
+    <div class="sealrow">${ruled.slice(0, 16).map(a => tile(a, `<span>${known(a)}</span>`)).join('')}</div>`;
+
+  hydrateArt($('#v-sealed'));
+  $$('#v-sealed .sealtile').forEach(t => t.onclick = () => openCard(BY_ID.get(+t.dataset.id)));
 }
 
 /* ---------------------------------------------------------------- method */

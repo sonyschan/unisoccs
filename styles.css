@@ -298,6 +298,20 @@ tbody tr:nth-child(2) .rank{color:var(--t2)}
 tbody tr:nth-child(3) .rank{color:var(--t3)}
 .tw{overflow-x:auto}
 
+.sealh{font-family:var(--display);font-weight:900;font-size:30px;text-transform:uppercase;
+  letter-spacing:var(--ls-narrow);margin:34px 0 4px}
+.sealh:first-of-type{margin-top:8px}
+.sealrow{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+.sealtile{width:120px;cursor:pointer;background:var(--pitch-deep);border:1px solid var(--line);
+  border-radius:3px;padding:8px 8px 6px}
+.sealtile:hover{border-color:var(--chalk-faint)}
+.sealtile canvas{width:96px;height:96px;display:block;margin:0 auto;background:var(--pitch)}
+.sealtile__id{font-family:var(--display);font-weight:700;font-size:var(--fs-micro);
+  color:var(--chalk-faint);margin-top:5px}
+.sealtile__n{font-size:var(--fs-micro);line-height:1.3;margin-top:3px}
+.sealtile__n span{display:block;color:var(--chalk-faint);
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* ------------------------------------------------------------ modal */
 .modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;
   background:rgba(8,9,16,.82);backdrop-filter:blur(6px)}

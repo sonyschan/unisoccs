@@ -468,6 +468,14 @@ full-bleed section (topbar, hero, wall) spans the viewport; only the inner colum
 three read from the same token so their edges line up. An index earns its width: 2560px gives
 **9 cards per row**, not 6.
 
+**Do not rank a population that has nothing to rank on.** The Sealed page listed 120 unopened cards
+"ranked by the exact probability of finishing in the rarest 1%". But 5,097 unopened cards hold only
+**7 distinct probabilities**, and 4,840 of them (95%) share one: they have revealed nothing that
+changes their odds, so the "ranking" was ordering identical cards by assetId behind a decimal.
+**Only five cards have odds above the base rate.** The page now shows those five, then the ones
+furthest along, then the 224 already ruled out — and states the base rate once instead of pretending
+4,840 cards differ.
+
 **Equal values must share a rank.** Sequential ranking handed 314 and 315 to two cards with an
 identical OpenRarity score — inventing an order the data does not contain, on the same page that
 says the score's fine ordering is noise. Everything now uses competition ranking (1, 2, 2, 4), and
