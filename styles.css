@@ -298,6 +298,17 @@ tbody tr:nth-child(2) .rank{color:var(--t2)}
 tbody tr:nth-child(3) .rank{color:var(--t3)}
 .tw{overflow-x:auto}
 
+.squadin{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+#sq-addr{flex:1;min-width:260px;font:inherit;font-size:var(--fs-sub);
+  background:var(--pitch-deep);border:1px solid var(--line);border-radius:2px;
+  color:var(--chalk);padding:10px 12px;font-variant-numeric:tabular-nums}
+#sq-addr:focus{outline:none;border-color:var(--turf)}
+.sq-go{font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:var(--ls-mid);
+  text-transform:uppercase;background:var(--turf);border:1px solid var(--turf);color:var(--pitch);
+  padding:9px 20px;border-radius:2px;cursor:pointer}
+.sq-go--alt{background:transparent;color:var(--turf)}
+.sq-go:hover{filter:brightness(1.12)}
+
 .sealh{font-family:var(--display);font-weight:900;font-size:30px;text-transform:uppercase;
   letter-spacing:var(--ls-narrow);margin:34px 0 4px}
 .sealh:first-of-type{margin-top:8px}

@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;900&family=Chivo:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/styles.css?v=3920790bbf">
+<link rel="stylesheet" href="/styles.css?v=6e7e04b8d7">
 </head>
 <body>
 
@@ -23,6 +23,7 @@
       <button class="nav__b" data-view="browse" aria-current="true">Players</button>
       <button class="nav__b" data-view="tables">Tables</button>
       <button class="nav__b" data-view="sealed">Sealed</button>
+      <button class="nav__b" data-view="squad">My squad</button>
       <button class="nav__b" data-view="method">Method</button>
     </nav>
   </div>
@@ -66,6 +67,8 @@
 
   <section class="view" id="v-sealed" hidden></section>
 
+  <section class="view" id="v-squad" hidden></section>
+
   <section class="view" id="v-method" hidden>
     <div id="method"></div>
   </section>
@@ -84,6 +87,7 @@
 </div>
 
 <script src="/js/art.js"></script>
+<script src="/js/chain.js"></script>
 <script src="/js/app.js"></script>
 </body>
 </html>

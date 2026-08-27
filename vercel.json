@@ -1,5 +1,9 @@
 {
   "cleanUrls": true,
+  "rewrites": [
+    { "source": "/squad", "destination": "/index.html" },
+    { "source": "/squad/:addr", "destination": "/index.html" }
+  ],
   "headers": [
     {
       "source": "/data/(elements|digits|vocabulary|career-stats).json",

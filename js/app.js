@@ -46,6 +46,11 @@ let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
   bindNav();
   applyTraitRoute();
   render();
+  const sq = squadRoute();
+  if (sq !== null) {
+    showView('squad');
+    if (sq) loadSquad(sq); else renderSquadShell();
+  }
 })();
 
 /* Tiers arrive from the builder and belong to a CLASS, never to a card.
@@ -940,6 +945,12 @@ function openCard(a) {
 }
 
 /* ---------------------------------------------------------------- nav */
+function showView(v) {
+  VIEW = v;
+  $$('.nav__b').forEach(x => x.setAttribute('aria-current', x.dataset.view === v));
+  $$('.view').forEach(s => s.hidden = s.id !== 'v-' + v);
+}
+
 function bindNav() {
   $$('.nav__b').forEach(b => b.onclick = () => {
     VIEW = b.dataset.view;
@@ -947,6 +958,12 @@ function bindNav() {
     $$('.view').forEach(v => v.hidden = v.id !== 'v-' + VIEW);
     if (VIEW === 'tables') renderTable();
     if (VIEW === 'sealed') renderSealed();
+    if (VIEW === 'squad') {
+      let a = squadRoute();
+      if (!a) { try { a = localStorage.getItem('unisoccs.addr'); } catch {} }
+      if (a && isAddr(a)) { history.replaceState({}, '', '/squad/' + a); loadSquad(a); }
+      else { history.replaceState({}, '', '/squad'); renderSquadShell(); }
+    }
     scrollTo({ top: $('.hero').offsetHeight - 60, behavior: 'smooth' });
   });
   $('#close').onclick = () => $('#modal').hidden = true;
@@ -1019,3 +1036,146 @@ function renderTraitBanner(L, el) {
   else b.querySelector('canvas').remove();
   document.title = `${name} — ${L.name} — Unisoccs`;
 }
+
+/* ---------------------------------------------------------------- my squad
+   Ownership is read live from the contract, not from the committed index.
+   Everything else here is a snapshot on purpose; ownership is the one thing
+   that changes on every trade, and the question is only ever about one
+   address, which two requests answer exactly. */
+let SQUAD_ADDR = null;
+
+const short = a => a.slice(0, 6) + '…' + a.slice(-4);
+const isAddr = s => /^0x[0-9a-fA-F]{40}$/.test(s.trim());
+
+function squadRoute() {
+  const m = location.pathname.match(/^\/squad(?:\/(0x[0-9a-fA-F]{40}))?\/?$/);
+  return m ? (m[1] || '').toLowerCase() : null;
+}
+
+function renderSquadShell(msg) {
+  const eth = window.ethereum;
+  $('#v-squad').innerHTML = `
+    <h2 class="sealh" style="margin-top:0">My squad</h2>
+    <p class="lede">Every card an address holds, with its class, its record and what is still
+      sealed. Read straight from the contract, so it is current to this second — not to the last
+      time this site was built.</p>
+    <div class="squadin">
+      <input id="sq-addr" type="text" spellcheck="false" autocomplete="off"
+             placeholder="0x… paste any address" value="${SQUAD_ADDR || ''}">
+      <button class="sq-go" id="sq-go">Look up</button>
+      ${eth ? '<button class="sq-go sq-go--alt" id="sq-connect">Connect wallet</button>' : ''}
+    </div>
+    ${msg ? `<p class="lede" style="color:var(--kit)">${msg}</p>` : ''}
+    <div id="sq-body"></div>`;
+
+  const go = () => {
+    const v = $('#sq-addr').value.trim();
+    if (!isAddr(v)) return renderSquadShell('That does not look like an address — it should be 0x and 40 hex characters.');
+    history.pushState({}, '', '/squad/' + v.toLowerCase());
+    loadSquad(v.toLowerCase());
+  };
+  $('#sq-go').onclick = go;
+  $('#sq-addr').onkeydown = e => { if (e.key === 'Enter') go(); };
+  if (eth) $('#sq-connect').onclick = async () => {
+    let acc;
+    try { acc = await eth.request({ method: 'eth_requestAccounts' }); }
+    catch { return; }                                    // declined; nothing to say
+    if (!acc?.[0]) return;
+    const a = acc[0].toLowerCase();
+    try { localStorage.setItem('unisoccs.addr', a); } catch {}
+    history.pushState({}, '', '/squad/' + a);
+    loadSquad(a);
+  };
+}
+
+async function loadSquad(address) {
+  SQUAD_ADDR = address;
+  renderSquadShell();
+  const body = $('#sq-body');
+  body.innerHTML = '<p class="empty">Reading the contract…</p>';
+  let ids;
+  try {
+    ids = await Chain.assetsOf(address);
+  } catch (e) {
+    body.innerHTML = `<p class="empty">Could not reach the chain just now. ${escapeHtml(e.message)}
+      <br><br>Nothing else on this page depends on it — try again in a moment.</p>`;
+    return;
+  }
+  if (!ids.length) {
+    body.innerHTML = '<p class="empty">This address holds no soccs.</p>';
+    return;
+  }
+  const cards = ids.map(id => BY_ID.get(id)).filter(Boolean);
+  const missing = ids.length - cards.length;
+  renderSquad(cards, missing);
+}
+
+function renderSquad(cards, missing) {
+  const settled = cards.filter(a => a.lv === 13);
+  const sealed  = cards.filter(a => a.lv === 0);
+  const withRec = settled.filter(a => a.apps != null);
+  const best    = settled.slice().sort((a, b) => a.clsRank - b.clsRank)[0];
+  const nations = new Set(settled.map(a => a.t[2]).filter(Boolean));
+  const goals   = withRec.reduce((s, a) => s + a.goals, 0);
+  const badges  = settled.filter(a => a.tier).length;
+  const xi      = pickXI(withRec);
+
+  const unopened = cards.filter(a => a.lv < 13);
+  // every unopened card carries an exact probability, so a pile of them has an
+  // exact expectation — the most useful number a big holder can be given
+  const expTop1 = unopened.reduce((s, a) => s + (a.pTop1 || 0), 0);
+
+  const stat = l => `<div class="plate"><canvas></canvas><span>${l}</span></div>`;
+  const stats = [
+    [cards.length, 'soccs held', 'var(--chalk-num)'],
+    [settled.length, 'fully open', 'var(--turf)'],
+    [unopened.length, 'still sealed', 'var(--sealed)'],
+    ...(settled.length ? [
+      [badges, 'wearing a badge', 'var(--amber)'],
+      [nations.size, 'of 32 nations', 'var(--chalk-num)'],
+      [goals, 'goals between them', 'var(--chalk-num)'],
+    ] : []),
+  ];
+
+  $('#sq-body').innerHTML = `
+    <div class="plates" style="margin:18px 0 6px">${stats.map(([, l]) => stat(l)).join('')}</div>
+    ${missing ? `<p class="lede" style="color:var(--chalk-faint)">${missing} of these were minted
+      after the index was last built, so they are not shown below yet.</p>` : ''}
+    ${best ? `<p class="lede">Rarest held: <b>#${best.id}</b> — class ${best.clsRank} of
+      ${D.meta.classesSeen}, ${best.clsCount} like it revealed so far.</p>` : ''}
+    ${!settled.length ? `<p class="lede"><b>Not one of these is fully open yet.</b> Nation, career
+      and record are still unknown — to you and to everybody else. There is nothing to rank until
+      they open, so there is no squad to pick here yet.</p>` : ''}
+    ${unopened.length ? `<p class="lede">Across the ${fmt(unopened.length)} still sealed,
+      <b>${expTop1 < 1 ? expTop1.toFixed(2) : expTop1.toFixed(1)}</b> should finish in the rarest
+      1% of the collection. That is exact arithmetic over each card's own odds, not a guess
+      &mdash; though of course it will land as a whole number.</p>` : ''}
+
+    ${xi.length ? `<h3 class="sealh">Best XI</h3>
+      <p class="lede">Picked from the cards you hold, four at the back and three up front.
+        ${xi.length < 11 ? `Only ${xi.length} of the eleven shirts can be filled so far.` : ''}</p>
+      ${FORMATION.map(([pos]) => {
+        const line = xi.filter(a => a.pos === pos);
+        return line.length ? `<h4 style="font-family:var(--display);letter-spacing:var(--ls-mid);
+            color:var(--chalk-faint);margin:14px 0 8px;font-size:var(--fs-micro)">${pos}</h4>
+          <div class="sealrow">${line.map(a => `<div class="sealtile" data-id="${a.id}">
+            <canvas data-art="${a.id}"></canvas>
+            <div class="sealtile__id">#${a.id}</div>
+            <div class="sealtile__n">${a.career}<span>${a.apps}/${a.goals}</span></div>
+          </div>`).join('')}</div>` : '';
+      }).join('')}` : ''}
+
+    <h3 class="sealh">Every card</h3>
+    <div class="grid" id="sq-grid"></div>`;
+
+  $$('#sq-body .plate canvas').forEach((c, i) =>
+    Art.number(c, stats[i][0], 5, cssVar(stats[i][2])));
+  hydrateArt($('#sq-body'));
+  const grid = $('#sq-grid');
+  cards.slice().sort((a, b) => (a.clsRank ?? 99) - (b.clsRank ?? 99) || b.lv - a.lv || a.id - b.id)
+       .forEach((a, i) => grid.appendChild(cardEl(a, i)));
+  $$('#sq-body .sealtile').forEach(t => t.onclick = () => openCard(BY_ID.get(+t.dataset.id)));
+}
+
+const escapeHtml = s => String(s).replace(/[&<>"]/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
