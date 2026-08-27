@@ -10,8 +10,14 @@ Design notes that are load-bearing (see CLAUDE.md):
     on which of the 5 optional layers are present -> 32 classes. Empirical
     OpenRarity is shipped too, but its fine ordering is sampling noise.
 """
-import json, math, os, sys, time
+import json, math, os, re, sys, time
 from collections import Counter
+
+def slugify(text):
+    """Stable URL key. Strip apostrophes BEFORE replacing the rest, or
+    "Captain's Armband" becomes captain-s-armband."""
+    t = text.lower().replace("'", "").replace("+", "")
+    return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", t)).strip("-") or "none"
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import rpc
 
@@ -229,8 +235,10 @@ def main():
     layers = []
     for i, L in enumerate(LAYERS):
         c = cnt[i] if i in ART else Counter(v[i] for v in settled.values())
-        layers.append({"index": i, "name": L["name"], "optional": L["optional"],
-                       "bps": BPS[i], "names": L["names"],
+        layers.append({"index": i, "name": L["name"], "slug": slugify(L["name"]),
+                       "optional": L["optional"], "bps": BPS[i], "names": L["names"],
+                       # element order, 1-based; index 0 of this list is elementId 1
+                       "slugs": [slugify(n) for n in L["names"]],
                        "counts": {str(k): c[k] for k in sorted(c)}})
 
     doc = {"v": 1,

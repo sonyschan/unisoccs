@@ -31,6 +31,12 @@ jobs:
 
       # No dependencies on purpose: tools/ is stdlib-only, and the public
       # Robinhood RPC is enough. ROBINHOOD_RPC_URL is an optional speed-up.
+      # The trait pages are copies of index.html; a shell change without a
+      # re-run leaves 180 pages serving the old one. Warn, don't block the data.
+      - name: Are the trait pages built from the current shell?
+        continue-on-error: true
+        run: python3 tools/prerender.py --check
+
       - name: Build the index
         env:
           ROBINHOOD_RPC_URL: ${{ secrets.ROBINHOOD_RPC_URL }}

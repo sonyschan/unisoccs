@@ -4,344 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Unisoccs — the soccs index</title>
-<meta name="description" content="Rarity, traits and career records for every soccs player card. The index uToken doesn't have.">
-<link rel="icon" type="image/png" href="favicon.png">
+<meta name="description" content="The record book for soccs — 7,349 players across 32 nations, with the appearances and goals written into every card. Rarity, traits and full career records.">
+<link rel="icon" type="image/png" href="/favicon.png">
 <meta property="og:title" content="Unisoccs — the soccs index">
-<meta property="og:description" content="Rarity, traits and the real career record for every soccs player card.">
+<meta property="og:description" content="7,349 players. 32 nations. 64 careers. Every soccs carries a real appearance and goal record, written into the art itself.">
 <meta name="theme-color" content="#1a1c2c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;900&family=Chivo:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-/* ============================================================ FLOODLIT
-   Night match, printed as a sticker album page.
-   The page ground IS the on-chain background colour, so every card's own
-   backdrop dissolves into it and the art reads as a die-cut sticker.
-   ============================================================ */
-:root{
-  --pitch:#1a1c2c;        /* the contract's own background. do not change. */
-  --pitch-deep:#111321;
-  --pitch-raised:#23273a;
-  --pitch-edge:#2b3049;
-  --line:#343a57;
-
-  --chalk:#eef1f8;
-  --chalk-dim:#8e96b4;
-  --chalk-faint:#5d6484;
-  --flood:#dce8ff;        /* floodlight: the bright end of the rarity ramp */
-
-  --turf:#35c97f;         /* selection / active / present */
-  --turf-deep:#177d4e;
-  --amber:#e2ba48;        /* lifted from the goals digits in the art */
-  --chalk-num:#f0ece2;    /* lifted from the appearances digits in the art */
-  --kit:#ff2e88;          /* Uniswap FC only. 1% of the collection. */
-  --foil-a:#8ff3ff; --foil-b:#c9a2ff;
-  --sealed:#4a527a;
-
-  --t1:#ffd94a; --t1i:#2a2208;   /* class ranks, as medals */
-  --t2:#d9dee9; --t2i:#1d2130;
-  --t3:#cd8b52; --t3i:#241203;
-
-  --display:'Big Shoulders Display',Impact,sans-serif;
-  --body:'Chivo',ui-sans-serif,sans-serif;
-
-  --fs-micro:14px; --fs-tiny:14px; --fs-small:15px; --fs-sub:15px;
-  --ls-wide:.20em; --ls-mid:.13em; --ls-narrow:.05em;
-  --rail:264px;
-  --maxw:1560px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{
-  background:var(--pitch); color:var(--chalk);
-  font-family:var(--body); font-size:var(--fs-small); line-height:1.5;
-  overflow-x:hidden;
-  /* terrace haze: a cold floodlight bloom from above, warm sodium at the edges */
-  background-image:
-    radial-gradient(120% 60% at 50% -10%, rgba(220,232,255,.09), transparent 60%),
-    radial-gradient(80% 50% at 100% 100%, rgba(226,186,72,.045), transparent 70%);
-  background-attachment:fixed;
-}
-canvas{image-rendering:pixelated;image-rendering:crisp-edges}
-a{color:inherit}
-::selection{background:var(--turf);color:var(--pitch)}
-
-/* fine chalk grid, like a printed album page */
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),
-                   linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:48px 48px;
-  mask-image:radial-gradient(120% 90% at 50% 0%,#000 10%,transparent 75%);
-  -webkit-mask-image:radial-gradient(120% 90% at 50% 0%,#000 10%,transparent 75%);
-}
-.wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 24px}
-
-/* ------------------------------------------------------------ topbar */
-.top{
-  position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);
-  background:linear-gradient(var(--pitch) 55%,rgba(26,28,44,.72));
-  border-bottom:1px solid var(--line);
-}
-.top__in{display:flex;align-items:center;gap:22px;height:60px;
-  max-width:var(--maxw);margin:0 auto;padding:0 24px}
-.mark{font-family:var(--display);font-weight:900;font-size:30px;line-height:1;
-  letter-spacing:.02em;text-transform:uppercase;white-space:nowrap}
-.mark b{color:var(--turf)}
-.top__nav{display:flex;gap:2px;margin-left:auto;flex-wrap:nowrap;
-  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.top__nav::-webkit-scrollbar{display:none}
-.nav__b{
-  font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:var(--ls-narrow);
-  text-transform:uppercase;background:none;border:0;color:var(--chalk-dim);
-  padding:7px 13px;cursor:pointer;border-radius:2px;position:relative;
-}
-.nav__b:hover{color:var(--chalk)}
-@media(max-width:560px){
-  .top__in{gap:10px;padding:0 14px}
-  .mark{font-size:23px}
-  .nav__b{font-size:16px;padding:6px 8px}
-  .wrap{padding:0 14px}
-  .hero__in{padding:64px 14px 0}
-}
-.nav__b[aria-current="true"]{color:var(--pitch);background:var(--chalk)}
-
-/* ------------------------------------------------------------ hero */
-.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
-#wall{display:block;width:100%;height:600px;opacity:.72}
-.hero::after{ /* floodlight falloff so the type always sits on darkness */
-  content:'';position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(180deg,rgba(26,28,44,.9) 0%,rgba(26,28,44,.35) 38%,var(--pitch) 97%),
-             radial-gradient(70% 120% at 12% 50%,rgba(26,28,44,.94),transparent 62%);
-}
-.hero__in{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;
-  justify-content:center;max-width:var(--maxw);margin:0 auto;padding:60px 24px 0}
-.hero h1{
-  font-family:var(--display);font-weight:900;text-transform:uppercase;
-  font-size:clamp(38px,6.2vw,84px);line-height:.86;letter-spacing:-.005em;
-  max-width:13ch;text-wrap:balance;
-}
-.hero h1 em{font-style:normal;color:var(--turf)}
-.hero p{max-width:46ch;margin-top:16px;color:var(--chalk-dim);font-size:16px}
-.hero p b{color:var(--chalk);font-weight:700}
-
-/* scoreboard stat plates — the card art's own motif, and its own numerals */
-.plates{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
-.plate{background:#141626;border:1px solid var(--pitch-edge);border-radius:3px;
-  padding:9px 13px 10px;min-width:112px;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 6px 18px rgba(0,0,0,.42)}
-.plate canvas{display:block;height:26px}
-.plate span{display:block;margin-top:6px;font-family:var(--display);font-weight:700;
-  font-size:var(--fs-micro);letter-spacing:var(--ls-mid);text-transform:uppercase;
-  color:var(--chalk-faint)}
-
-/* ------------------------------------------------------------ layout */
-.view{padding:34px 0 90px}
-.view[hidden]{display:none}
-.board{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);gap:26px;align-items:start}
-@media(max-width:940px){.board{grid-template-columns:1fr}}
-
-.rail{position:sticky;top:76px;max-height:calc(100vh - 96px);overflow-y:auto;
-  padding-right:6px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
-.rail::-webkit-scrollbar{width:7px}
-.rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
-@media(max-width:940px){.rail{position:static;max-height:none;
-  border-bottom:1px solid var(--line);padding-bottom:20px;margin-bottom:20px}}
-
-.sect{margin-bottom:18px}
-.sect__h{display:flex;align-items:baseline;gap:8px;margin-bottom:7px;cursor:pointer;
-  user-select:none;padding:2px 0}
-.sect__h h3{font-family:var(--display);font-weight:700;font-size:17px;
-  letter-spacing:var(--ls-mid);text-transform:uppercase;color:var(--chalk)}
-.sect__n{font-size:var(--fs-micro);color:var(--chalk-faint);font-variant-numeric:tabular-nums}
-.sect__cov{flex:1;height:3px;background:var(--pitch-raised);border-radius:2px;overflow:hidden;
-  min-width:20px;align-self:center}
-.sect__cov i{display:block;height:100%;background:var(--turf);opacity:.6}
-.sect__pct{font-size:var(--fs-micro);color:var(--turf);font-variant-numeric:tabular-nums;
-  flex:none;align-self:center}
-.rail__key{display:flex;align-items:center;gap:7px;color:var(--chalk-faint);
-  font-size:var(--fs-micro);line-height:1.35;margin-bottom:16px;padding-bottom:14px;
-  border-bottom:1px solid var(--line)}
-.rail__key i{flex:none;width:26px;height:3px;background:var(--turf);opacity:.6;border-radius:2px}
-.sect__b{display:flex;flex-direction:column;gap:2px}
-.sect[data-open="0"] .sect__b{display:none}
-
-/* facet rows: a count bar whose fill is the floodlight ramp */
-.f{display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;
-  border:0;background:transparent;color:var(--chalk-dim);cursor:pointer;
-  padding:4px 7px;border-radius:2px;text-align:left;font:inherit;font-size:var(--fs-micro);
-  position:relative;overflow:hidden;width:100%}
-.f::before{content:'';position:absolute;inset:0;background:var(--_bg,transparent);
-  z-index:0;transition:opacity .12s}
-.f>*{position:relative;z-index:1}
-.f:hover{color:var(--chalk)}
-.f canvas{width:24px;height:24px;border-radius:1px;background:var(--pitch-deep)}
-.f__n{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.f__c{font-variant-numeric:tabular-nums;font-size:var(--fs-micro);color:var(--chalk-faint)}
-.f[aria-pressed="true"]{color:var(--pitch);background:var(--turf);font-weight:700}
-.f[aria-pressed="true"] .f__c{color:rgba(0,0,0,.6)}
-.f[aria-pressed="true"]::before{opacity:0}
-.f.is-zero{opacity:.32}
-.f.is-none .f__n{font-style:italic}
-.f.is-sealed{color:var(--sealed)}
-
-/* ------------------------------------------------------------ toolbar */
-.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-.count{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:var(--ls-narrow);
-  text-transform:uppercase;font-variant-numeric:tabular-nums}
-.count b{color:var(--turf)}
-.sel{position:relative}
-.sel__btn{font:inherit;font-size:var(--fs-micro);background:var(--pitch-raised);
-  color:var(--chalk);border:1px solid var(--line);border-radius:2px;
-  padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:8px}
-.sel__btn:hover{border-color:var(--chalk-faint)}
-.sel__btn i{font-style:normal;color:var(--chalk-faint);font-size:var(--fs-micro)}
-.sel__menu{position:absolute;right:0;top:calc(100% + 5px);z-index:50;min-width:216px;
-  background:var(--pitch-raised);border:1px solid var(--line);border-radius:3px;
-  padding:4px;box-shadow:0 18px 40px rgba(0,0,0,.6)}
-.sel__menu[hidden]{display:none}
-.sel__opt{display:block;width:100%;text-align:left;font:inherit;font-size:var(--fs-micro);
-  background:none;border:0;color:var(--chalk-dim);padding:7px 10px;border-radius:2px;cursor:pointer}
-.sel__opt:hover{background:var(--pitch-edge);color:var(--chalk)}
-.sel__opt[aria-current="true"]{color:var(--turf);font-weight:700}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.chips:empty{display:none}
-.chip{display:inline-flex;align-items:center;gap:7px;font-size:var(--fs-micro);
-  background:var(--pitch-raised);border:1px solid var(--line);border-radius:2px;
-  padding:4px 8px;color:var(--chalk-dim);cursor:pointer;font:inherit;font-size:var(--fs-micro)}
-.chip:hover{border-color:var(--kit);color:var(--chalk)}
-.chip u{text-decoration:none;color:var(--chalk-faint);font-family:var(--display);
-  font-weight:700;letter-spacing:var(--ls-mid);text-transform:uppercase;font-size:var(--fs-micro)}
-.chip--clear{border-color:var(--kit);color:var(--kit)}
-
-/* ------------------------------------------------------------ grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:14px}
-@media(max-width:620px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
-
-/* the pocket holds a fixed-size sticker; only the pocket is fluid */
-.card{background:var(--pitch-deep);border:1px solid var(--line);border-radius:3px;
-  padding:11px 11px 4px;cursor:pointer;position:relative;overflow:hidden;
-  display:flex;flex-direction:column;align-items:center;
-  transition:border-color .13s,transform .13s;animation:pop .3s backwards}
-@keyframes pop{from{opacity:0;transform:translateY(7px)}}
-.card:hover{border-color:var(--chalk-faint);transform:translateY(-2px)}
-.card canvas{width:144px;height:144px;display:block;background:var(--pitch)}
-@media(max-width:620px){.card canvas{width:96px;height:96px}}
-.card--t1{border-color:var(--t1);box-shadow:0 0 0 1px rgba(255,217,74,.22),0 8px 26px rgba(255,217,74,.09)}
-.card--t2{border-color:var(--t2)}
-.card--t3{border-color:var(--t3)}
-.card--kit{border-color:var(--kit);box-shadow:0 0 0 1px rgba(255,46,136,.25),0 8px 26px rgba(255,46,136,.13)}
-.card--sealed canvas{opacity:.5}
-
-.card__id{position:absolute;top:0;left:0;font-family:var(--display);font-weight:700;
-  font-size:var(--fs-micro);letter-spacing:var(--ls-narrow);color:var(--chalk-faint);
-  background:var(--pitch-deep);padding:3px 7px;border-bottom-right-radius:3px;
-  border-right:1px solid var(--line);border-bottom:1px solid var(--line);z-index:2}
-.card__tier{position:absolute;top:0;right:0;font-family:var(--display);font-weight:700;
-  font-size:var(--fs-micro);letter-spacing:var(--ls-narrow);padding:3px 7px;z-index:2;
-  clip-path:polygon(0 0,100% 0,100% 100%,22% 100%,0 62%)}
-.card__tier--t1{background:var(--t1);color:var(--t1i)}
-.card__tier--t2{background:var(--t2);color:var(--t2i)}
-.card__tier--t3{background:var(--t3);color:var(--t3i)}
-.card__tier--kit{background:var(--kit);color:#fff}
-
-.card__plate{width:100%;margin-top:9px;padding:7px 2px 8px;border-top:1px solid var(--line);
-  display:flex;align-items:center;gap:8px;justify-content:space-between}
-.card__role{font-family:var(--display);font-weight:700;font-size:15px;line-height:1;
-  letter-spacing:var(--ls-narrow);text-transform:uppercase;color:var(--chalk);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card__stat{display:flex;gap:7px;flex:none}
-.card__nat{font-size:var(--fs-micro);color:var(--chalk-faint);white-space:nowrap;flex:none}
-
-/* Reveal meter — one segment per layer, and ONLY on a card that is not fully
-   open. A bar that is full on every card in the view says nothing; its presence
-   here is the signal, and the fill is how far along. */
-.meter{display:flex;align-items:center;gap:1px;width:100%;height:12px;
-  margin:0 0 6px;padding-top:5px}
-.meter i{flex:1;height:3px;background:var(--pitch-edge);border-radius:1px}
-.meter i.on{background:var(--turf)}
-.meter b{flex:none;margin-left:6px;font-family:var(--display);font-weight:700;
-  font-size:var(--fs-micro);line-height:1;color:var(--sealed);
-  font-variant-numeric:tabular-nums}
-
-/* ------------------------------------------------------------ tables */
-.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:20px}
-.tab{font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:var(--ls-narrow);
-  text-transform:uppercase;background:var(--pitch-raised);border:1px solid var(--line);
-  color:var(--chalk-dim);padding:8px 15px;border-radius:2px;cursor:pointer}
-.tab:hover{color:var(--chalk)}
-.tab[aria-current="true"]{background:var(--turf);border-color:var(--turf);color:var(--pitch)}
-.lede{color:var(--chalk-dim);max-width:64ch;margin-bottom:20px;font-size:var(--fs-sub)}
-.lede b{color:var(--chalk);font-weight:700}
-
-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-thead th{font-family:var(--display);font-weight:700;font-size:var(--fs-micro);
-  letter-spacing:var(--ls-mid);text-transform:uppercase;color:var(--chalk-faint);
-  text-align:left;padding:0 10px 8px;border-bottom:1px solid var(--line);white-space:nowrap}
-tbody td{padding:7px 10px;border-bottom:1px solid rgba(52,58,87,.5);font-size:var(--fs-micro)}
-tbody tr{cursor:pointer}
-tbody tr:hover td{background:var(--pitch-raised)}
-td.num{text-align:right;font-variant-numeric:tabular-nums}
-td.art canvas{width:48px;height:48px;display:block;background:var(--pitch)}
-.rank{font-family:var(--display);font-weight:900;font-size:21px;color:var(--chalk-faint);
-  line-height:1;width:1%}
-tbody tr:nth-child(1) .rank{color:var(--t1)}
-tbody tr:nth-child(2) .rank{color:var(--t2)}
-tbody tr:nth-child(3) .rank{color:var(--t3)}
-.tw{overflow-x:auto}
-
-/* ------------------------------------------------------------ modal */
-.modal{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;
-  background:rgba(8,9,16,.82);backdrop-filter:blur(6px)}
-.modal[hidden]{display:none}
-.sheet{background:var(--pitch-deep);border:1px solid var(--line);border-radius:4px;
-  max-width:760px;width:100%;max-height:92vh;overflow-y:auto;
-  display:grid;grid-template-columns:auto minmax(0,1fr);gap:26px;padding:26px;
-  box-shadow:0 30px 90px rgba(0,0,0,.7)}
-@media(max-width:680px){.sheet{grid-template-columns:1fr;padding:18px;gap:18px}}
-.sheet__art{display:flex;flex-direction:column;gap:12px;align-items:center}
-.sheet__art canvas{width:288px;height:288px;background:var(--pitch);
-  border:1px solid var(--line);border-radius:3px}
-@media(max-width:680px){.sheet__art canvas{width:216px;height:216px}}
-.sheet h2{font-family:var(--display);font-weight:900;font-size:44px;line-height:.9;
-  text-transform:uppercase;letter-spacing:-.005em}
-.sheet h2 small{display:block;font-size:17px;letter-spacing:var(--ls-mid);
-  color:var(--chalk-faint);font-weight:700}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 14px;margin-top:16px;font-size:var(--fs-micro)}
-.kv dt{color:var(--chalk-faint);white-space:nowrap;font-family:var(--display);font-weight:700;
-  letter-spacing:var(--ls-narrow);text-transform:uppercase;font-size:var(--fs-micro);padding-top:1px}
-.kv dd{color:var(--chalk);text-align:right;font-variant-numeric:tabular-nums}
-.kv dd.none{color:var(--chalk-faint);font-style:italic}
-.kv dd.sealedv{color:var(--sealed)}
-.panel{border:1px solid var(--line);border-radius:3px;padding:13px 15px;margin-top:16px;
-  background:var(--pitch)}
-.panel h4{font-family:var(--display);font-weight:700;font-size:var(--fs-micro);
-  letter-spacing:var(--ls-mid);text-transform:uppercase;color:var(--chalk-faint);margin-bottom:8px}
-.big{font-family:var(--display);font-weight:900;font-size:34px;line-height:1;
-  font-variant-numeric:tabular-nums}
-.panel p{font-size:var(--fs-micro);color:var(--chalk-dim);margin-top:7px}
-.envel{height:7px;background:var(--pitch-raised);border-radius:4px;position:relative;
-  margin:11px 0 6px;overflow:hidden}
-.envel i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--turf),var(--flood))}
-.x{position:absolute;top:14px;right:16px;background:var(--pitch-raised);border:1px solid var(--line);
-  color:var(--chalk-dim);border-radius:2px;width:30px;height:30px;cursor:pointer;
-  font-size:17px;line-height:1;z-index:3}
-.x:hover{border-color:var(--kit);color:var(--kit)}
-.blink{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--turf);
-  animation:blink 2.4s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
-
-.more{display:block;margin:26px auto 0;font-family:var(--display);font-weight:700;font-size:19px;
-  letter-spacing:var(--ls-mid);text-transform:uppercase;background:var(--pitch-raised);
-  border:1px solid var(--line);color:var(--chalk);padding:11px 30px;border-radius:2px;cursor:pointer}
-.more:hover{border-color:var(--turf);color:var(--turf)}
-.empty{padding:60px 0;text-align:center;color:var(--chalk-faint)}
-.foot{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--chalk-faint);font-size:var(--fs-micro)}
-.foot a{color:var(--chalk-dim)}
-@media(min-width:1720px){:root{--maxw:1880px;--rail:296px}}
-@media(min-width:2200px){:root{--maxw:2160px}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-</style>
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 
@@ -360,10 +31,10 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
 <section class="hero">
   <canvas id="wall"></canvas>
   <div class="hero__in">
-    <h1>Every player.<br><em>Every trait.</em><br>Finally sortable.</h1>
-    <p>uToken hosts the art. It doesn't tell you what you're holding.
-       <b>This does</b> — rarity, traits, and the real career record on all
-       <b id="h-alive">—</b> living soccs.</p>
+    <h1>Every player.<br>Every trait.<br><em>Every career.</em></h1>
+    <p>The numbers on a soccs are a real career — appearances and goals,
+       written into the art itself. <b id="h-alive">—</b> players,
+       32 nations, 64 careers, and <b id="h-sealed">—</b> still to be opened.</p>
     <div class="plates" id="plates"></div>
   </div>
 </section>
@@ -371,6 +42,7 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
 <main class="wrap">
 
   <section class="view" id="v-browse">
+    <div id="tbanner" hidden></div>
     <div class="board">
       <aside class="rail" id="rail"></aside>
       <div>
@@ -409,8 +81,9 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
 </main>
 
 <footer class="foot wrap">
-  <span class="blink"></span> Built from chain reads only — no marketplace API in your browser.
-  Data <span id="f-built">—</span>. Community project, not affiliated with uToken.
+  <span class="blink"></span> Every number here is read straight from the contracts.
+  Data <span id="f-built">—</span>. A community project for the soccs collection,
+  built with the uToken community &mdash; independent of the uToken team.
 </footer>
 
 <div class="modal" id="modal" hidden>
@@ -418,7 +91,7 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
   <button class="x" id="close" aria-label="Close">&times;</button>
 </div>
 
-<script src="js/art.js"></script>
-<script src="js/app.js"></script>
+<script src="/js/art.js"></script>
+<script src="/js/app.js"></script>
 </body>
 </html>

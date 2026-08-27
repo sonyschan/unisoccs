@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Morocco — Nation — Unisoccs</title>
+<meta name="description" content="Every soccs with Morocco — about 1 in 32 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:title" content="Morocco — Nation — Unisoccs">
+<meta property="og:description" content="Every soccs with Morocco — about 1 in 32 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="canonical" href="https://unisoccs.vercel.app/trait/nation/morocco">
+<meta property="og:url" content="https://unisoccs.vercel.app/trait/nation/morocco">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unisoccs.vercel.app/trait/nation/morocco/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a1c2c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;900&family=Chivo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <div class="mark">UNI<b>SOCCS</b></div>
+    <nav class="top__nav">
+      <button class="nav__b" data-view="browse" aria-current="true">Players</button>
+      <button class="nav__b" data-view="tables">Tables</button>
+      <button class="nav__b" data-view="sealed">Sealed</button>
+      <button class="nav__b" data-view="method">Method</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <canvas id="wall"></canvas>
+  <div class="hero__in">
+    <h1>Every player.<br>Every trait.<br><em>Every career.</em></h1>
+    <p>The numbers on a soccs are a real career — appearances and goals,
+       written into the art itself. <b id="h-alive">—</b> players,
+       32 nations, 64 careers, and <b id="h-sealed">—</b> still to be opened.</p>
+    <div class="plates" id="plates"></div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section class="view" id="v-browse">
+    <div id="tbanner" hidden></div>
+    <div class="board">
+      <aside class="rail" id="rail"></aside>
+      <div>
+        <div class="bar">
+          <div class="count" id="count">—</div>
+          <div style="margin-left:auto" class="sel" id="revealsel"></div>
+          <div class="sel" id="sortsel"></div>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="grid" id="grid"></div>
+        <button class="more" id="more" hidden>Show more</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-tables" hidden>
+    <div class="tabs" id="tabs"></div>
+    <p class="lede" id="tlede"></p>
+    <div class="tw" id="twrap"></div>
+  </section>
+
+  <section class="view" id="v-sealed" hidden>
+    <p class="lede">
+      <b id="s-n">—</b> soccs have never been opened. Their nation, their career,
+      their goals are unknown even to the wallet holding them. Reveal is driven by trading,
+      not by a clock — so there is no countdown, only odds.
+      Every card below is ranked by the <b>exact probability</b> it finishes in the rarest 1%.
+    </p>
+    <div class="tw"><table id="stable"></table></div>
+  </section>
+
+  <section class="view" id="v-method" hidden>
+    <div id="method"></div>
+  </section>
+
+  <noscript>
+    <section class="wrap" style="padding-bottom:60px">
+      <h1 style="font-family:var(--display);font-size:44px;text-transform:uppercase">Morocco</h1>
+      <p class="lede">Every soccs with Morocco — about 1 in 32 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.</p>
+      <p class="lede">86 of the 2,585 revealed soccs carry it,
+        as of 27 Aug 2026. The live page above always shows the current figure.</p>
+      <table><thead><tr><th>Card</th><th>Career</th><th>Nation</th>
+        <th>Apps</th><th>Goals</th></tr></thead><tbody><tr><td>#1645</td><td>Living Legend</td><td>Morocco</td><td>94</td><td>36</td></tr><tr><td>#26577</td><td>The Monument</td><td>Morocco</td><td>98</td><td>14</td></tr><tr><td>#33119</td><td>Fox in the Box</td><td>Morocco</td><td>48</td><td>39</td></tr><tr><td>#14376</td><td>Backup</td><td>Morocco</td><td>21</td><td>7</td></tr><tr><td>#2410</td><td>Attacking Mid</td><td>Morocco</td><td>50</td><td>25</td></tr><tr><td>#1190</td><td>Old Guard</td><td>Morocco</td><td>66</td><td>9</td></tr><tr><td>#4014</td><td>Trialist</td><td>Morocco</td><td>5</td><td>3</td></tr><tr><td>#10639</td><td>Veteran</td><td>Morocco</td><td>68</td><td>1</td></tr><tr><td>#1048</td><td>Playmaker</td><td>Morocco</td><td>42</td><td>12</td></tr><tr><td>#278</td><td>Fox in the Box</td><td>Morocco</td><td>40</td><td>35</td></tr><tr><td>#10689</td><td>Star Forward</td><td>Morocco</td><td>78</td><td>45</td></tr><tr><td>#1449</td><td>Squad Player</td><td>Morocco</td><td>14</td><td>8</td></tr><tr><td>#35133</td><td>Impact Sub</td><td>Morocco</td><td>17</td><td>19</td></tr><tr><td>#30840</td><td>Predator</td><td>Morocco</td><td>83</td><td>59</td></tr><tr><td>#35122</td><td>Prospect</td><td>Morocco</td><td>3</td><td>8</td></tr><tr><td>#20643</td><td>Club Servant</td><td>Morocco</td><td>57</td><td>8</td></tr><tr><td>#32951</td><td>The General</td><td>Morocco</td><td>79</td><td>19</td></tr><tr><td>#15469</td><td>Man Marker</td><td>Morocco</td><td>45</td><td>6</td></tr><tr><td>#21956</td><td>Number Ten</td><td>Morocco</td><td>51</td><td>21</td></tr><tr><td>#23641</td><td>Sharpshooter</td><td>Morocco</td><td>70</td><td>51</td></tr><tr><td>#18253</td><td>The Phenomenon</td><td>Morocco</td><td>90</td><td>60</td></tr><tr><td>#30837</td><td>Sharpshooter</td><td>Morocco</td><td>72</td><td>57</td></tr><tr><td>#23477</td><td>Box to Box</td><td>Morocco</td><td>23</td><td>18</td></tr><tr><td>#2244</td><td>Full Back</td><td>Morocco</td><td>46</td><td>7</td></tr><tr><td>#15388</td><td>The Rock</td><td>Morocco</td><td>84</td><td>1</td></tr><tr><td>#18568</td><td>Creator</td><td>Morocco</td><td>43</td><td>19</td></tr><tr><td>#21594</td><td>Poacher</td><td>Morocco</td><td>21</td><td>28</td></tr><tr><td>#694</td><td>Attacking Mid</td><td>Morocco</td><td>50</td><td>24</td></tr><tr><td>#2280</td><td>Defender</td><td>Morocco</td><td>38</td><td>9</td></tr><tr><td>#14220</td><td>Creator</td><td>Morocco</td><td>42</td><td>17</td></tr><tr><td>#23661</td><td>Journeyman</td><td>Morocco</td><td>22</td><td>5</td></tr><tr><td>#11634</td><td>Winger</td><td>Morocco</td><td>34</td><td>25</td></tr><tr><td>#14202</td><td>Maestro</td><td>Morocco</td><td>88</td><td>22</td></tr><tr><td>#4138</td><td>Stalwart</td><td>Morocco</td><td>60</td><td>18</td></tr><tr><td>#1716</td><td>Icon</td><td>Morocco</td><td>81</td><td>39</td></tr><tr><td>#18803</td><td>Backup</td><td>Morocco</td><td>21</td><td>3</td></tr><tr><td>#1678</td><td>Grafter</td><td>Morocco</td><td>22</td><td>14</td></tr><tr><td>#1935</td><td>Target Man</td><td>Morocco</td><td>53</td><td>39</td></tr><tr><td>#15547</td><td>Anchor</td><td>Morocco</td><td>39</td><td>14</td></tr><tr><td>#18258</td><td>Mainstay</td><td>Morocco</td><td>66</td><td>11</td></tr></tbody></table>
+    </section>
+  </noscript>
+</main>
+
+<footer class="foot wrap">
+  <span class="blink"></span> Every number here is read straight from the contracts.
+  Data <span id="f-built">—</span>. A community project for the soccs collection,
+  built with the uToken community &mdash; independent of the uToken team.
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet"></div>
+  <button class="x" id="close" aria-label="Close">&times;</button>
+</div>
+
+<script src="/js/art.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

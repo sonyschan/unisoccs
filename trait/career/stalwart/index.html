@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Stalwart — Career — Unisoccs</title>
+<meta name="description" content="Every soccs with Stalwart — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:title" content="Stalwart — Career — Unisoccs">
+<meta property="og:description" content="Every soccs with Stalwart — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="canonical" href="https://unisoccs.vercel.app/trait/career/stalwart">
+<meta property="og:url" content="https://unisoccs.vercel.app/trait/career/stalwart">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unisoccs.vercel.app/trait/career/stalwart/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a1c2c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;900&family=Chivo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <div class="mark">UNI<b>SOCCS</b></div>
+    <nav class="top__nav">
+      <button class="nav__b" data-view="browse" aria-current="true">Players</button>
+      <button class="nav__b" data-view="tables">Tables</button>
+      <button class="nav__b" data-view="sealed">Sealed</button>
+      <button class="nav__b" data-view="method">Method</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <canvas id="wall"></canvas>
+  <div class="hero__in">
+    <h1>Every player.<br>Every trait.<br><em>Every career.</em></h1>
+    <p>The numbers on a soccs are a real career — appearances and goals,
+       written into the art itself. <b id="h-alive">—</b> players,
+       32 nations, 64 careers, and <b id="h-sealed">—</b> still to be opened.</p>
+    <div class="plates" id="plates"></div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section class="view" id="v-browse">
+    <div id="tbanner" hidden></div>
+    <div class="board">
+      <aside class="rail" id="rail"></aside>
+      <div>
+        <div class="bar">
+          <div class="count" id="count">—</div>
+          <div style="margin-left:auto" class="sel" id="revealsel"></div>
+          <div class="sel" id="sortsel"></div>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="grid" id="grid"></div>
+        <button class="more" id="more" hidden>Show more</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-tables" hidden>
+    <div class="tabs" id="tabs"></div>
+    <p class="lede" id="tlede"></p>
+    <div class="tw" id="twrap"></div>
+  </section>
+
+  <section class="view" id="v-sealed" hidden>
+    <p class="lede">
+      <b id="s-n">—</b> soccs have never been opened. Their nation, their career,
+      their goals are unknown even to the wallet holding them. Reveal is driven by trading,
+      not by a clock — so there is no countdown, only odds.
+      Every card below is ranked by the <b>exact probability</b> it finishes in the rarest 1%.
+    </p>
+    <div class="tw"><table id="stable"></table></div>
+  </section>
+
+  <section class="view" id="v-method" hidden>
+    <div id="method"></div>
+  </section>
+
+  <noscript>
+    <section class="wrap" style="padding-bottom:60px">
+      <h1 style="font-family:var(--display);font-size:44px;text-transform:uppercase">Stalwart</h1>
+      <p class="lede">Every soccs with Stalwart — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.</p>
+      <p class="lede">47 of the 2,585 revealed soccs carry it,
+        as of 27 Aug 2026. The live page above always shows the current figure.</p>
+      <table><thead><tr><th>Card</th><th>Career</th><th>Nation</th>
+        <th>Apps</th><th>Goals</th></tr></thead><tbody><tr><td>#33817</td><td>Stalwart</td><td>England</td><td>66</td><td>13</td></tr><tr><td>#5874</td><td>Stalwart</td><td>Uruguay</td><td>60</td><td>16</td></tr><tr><td>#1204</td><td>Stalwart</td><td>Iran</td><td>61</td><td>10</td></tr><tr><td>#15541</td><td>Stalwart</td><td>South Korea</td><td>64</td><td>17</td></tr><tr><td>#20304</td><td>Stalwart</td><td>Sweden</td><td>69</td><td>19</td></tr><tr><td>#4133</td><td>Stalwart</td><td>Netherlands</td><td>63</td><td>18</td></tr><tr><td>#15410</td><td>Stalwart</td><td>USA</td><td>60</td><td>15</td></tr><tr><td>#2970</td><td>Stalwart</td><td>Ghana</td><td>63</td><td>19</td></tr><tr><td>#11653</td><td>Stalwart</td><td>South Korea</td><td>62</td><td>16</td></tr><tr><td>#12221</td><td>Stalwart</td><td>Mexico</td><td>62</td><td>16</td></tr><tr><td>#20650</td><td>Stalwart</td><td>Egypt</td><td>63</td><td>19</td></tr><tr><td>#10651</td><td>Stalwart</td><td>France</td><td>65</td><td>14</td></tr><tr><td>#15256</td><td>Stalwart</td><td>Colombia</td><td>64</td><td>16</td></tr><tr><td>#21226</td><td>Stalwart</td><td>Iran</td><td>61</td><td>14</td></tr><tr><td>#10643</td><td>Stalwart</td><td>Nigeria</td><td>69</td><td>10</td></tr><tr><td>#5877</td><td>Stalwart</td><td>Ireland</td><td>65</td><td>10</td></tr><tr><td>#38797</td><td>Stalwart</td><td>Japan</td><td>65</td><td>12</td></tr><tr><td>#14031</td><td>Stalwart</td><td>Russia</td><td>67</td><td>17</td></tr><tr><td>#6780</td><td>Stalwart</td><td>Finland</td><td>65</td><td>16</td></tr><tr><td>#11128</td><td>Stalwart</td><td>Senegal</td><td>62</td><td>15</td></tr><tr><td>#21595</td><td>Stalwart</td><td>Argentina</td><td>63</td><td>16</td></tr><tr><td>#3532</td><td>Stalwart</td><td>South Korea</td><td>64</td><td>15</td></tr><tr><td>#14375</td><td>Stalwart</td><td>Senegal</td><td>62</td><td>10</td></tr><tr><td>#18382</td><td>Stalwart</td><td>Brazil</td><td>62</td><td>14</td></tr><tr><td>#292</td><td>Stalwart</td><td>Belgium</td><td>64</td><td>13</td></tr><tr><td>#4138</td><td>Stalwart</td><td>Morocco</td><td>60</td><td>18</td></tr><tr><td>#12936</td><td>Stalwart</td><td>Netherlands</td><td>64</td><td>19</td></tr><tr><td>#299</td><td>Stalwart</td><td>Croatia</td><td>68</td><td>10</td></tr><tr><td>#297</td><td>Stalwart</td><td>England</td><td>64</td><td>14</td></tr><tr><td>#2308</td><td>Stalwart</td><td>Denmark</td><td>61</td><td>14</td></tr><tr><td>#5881</td><td>Stalwart</td><td>Argentina</td><td>65</td><td>13</td></tr><tr><td>#699</td><td>Stalwart</td><td>England</td><td>66</td><td>11</td></tr><tr><td>#1388</td><td>Stalwart</td><td>Finland</td><td>66</td><td>10</td></tr><tr><td>#1638</td><td>Stalwart</td><td>Spain</td><td>68</td><td>15</td></tr><tr><td>#4220</td><td>Stalwart</td><td>Russia</td><td>60</td><td>13</td></tr><tr><td>#270</td><td>Stalwart</td><td>Iran</td><td>63</td><td>19</td></tr><tr><td>#20957</td><td>Stalwart</td><td>Argentina</td><td>69</td><td>12</td></tr><tr><td>#6598</td><td>Stalwart</td><td>Egypt</td><td>69</td><td>14</td></tr><tr><td>#10691</td><td>Stalwart</td><td>Denmark</td><td>64</td><td>14</td></tr><tr><td>#14555</td><td>Stalwart</td><td>Ghana</td><td>61</td><td>15</td></tr></tbody></table>
+    </section>
+  </noscript>
+</main>
+
+<footer class="foot wrap">
+  <span class="blink"></span> Every number here is read straight from the contracts.
+  Data <span id="f-built">—</span>. A community project for the soccs collection,
+  built with the uToken community &mdash; independent of the uToken team.
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet"></div>
+  <button class="x" id="close" aria-label="Close">&times;</button>
+</div>
+
+<script src="/js/art.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

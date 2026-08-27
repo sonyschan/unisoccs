@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Netherlands — Nation — Unisoccs</title>
+<meta name="description" content="Every soccs with Netherlands — about 1 in 32 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:title" content="Netherlands — Nation — Unisoccs">
+<meta property="og:description" content="Every soccs with Netherlands — about 1 in 32 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="canonical" href="https://unisoccs.vercel.app/trait/nation/netherlands">
+<meta property="og:url" content="https://unisoccs.vercel.app/trait/nation/netherlands">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unisoccs.vercel.app/trait/nation/netherlands/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a1c2c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;900&family=Chivo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <div class="mark">UNI<b>SOCCS</b></div>
+    <nav class="top__nav">
+      <button class="nav__b" data-view="browse" aria-current="true">Players</button>
+      <button class="nav__b" data-view="tables">Tables</button>
+      <button class="nav__b" data-view="sealed">Sealed</button>
+      <button class="nav__b" data-view="method">Method</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <canvas id="wall"></canvas>
+  <div class="hero__in">
+    <h1>Every player.<br>Every trait.<br><em>Every career.</em></h1>
+    <p>The numbers on a soccs are a real career — appearances and goals,
+       written into the art itself. <b id="h-alive">—</b> players,
+       32 nations, 64 careers, and <b id="h-sealed">—</b> still to be opened.</p>
+    <div class="plates" id="plates"></div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section class="view" id="v-browse">
+    <div id="tbanner" hidden></div>
+    <div class="board">
+      <aside class="rail" id="rail"></aside>
+      <div>
+        <div class="bar">
+          <div class="count" id="count">—</div>
+          <div style="margin-left:auto" class="sel" id="revealsel"></div>
+          <div class="sel" id="sortsel"></div>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="grid" id="grid"></div>
+        <button class="more" id="more" hidden>Show more</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-tables" hidden>
+    <div class="tabs" id="tabs"></div>
+    <p class="lede" id="tlede"></p>
+    <div class="tw" id="twrap"></div>
+  </section>
+
+  <section class="view" id="v-sealed" hidden>
+    <p class="lede">
+      <b id="s-n">—</b> soccs have never been opened. Their nation, their career,
+      their goals are unknown even to the wallet holding them. Reveal is driven by trading,
+      not by a clock — so there is no countdown, only odds.
+      Every card below is ranked by the <b>exact probability</b> it finishes in the rarest 1%.
+    </p>
+    <div class="tw"><table id="stable"></table></div>
+  </section>
+
+  <section class="view" id="v-method" hidden>
+    <div id="method"></div>
+  </section>
+
+  <noscript>
+    <section class="wrap" style="padding-bottom:60px">
+      <h1 style="font-family:var(--display);font-size:44px;text-transform:uppercase">Netherlands</h1>
+      <p class="lede">Every soccs with Netherlands — about 1 in 32 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.</p>
+      <p class="lede">68 of the 2,585 revealed soccs carry it,
+        as of 27 Aug 2026. The live page above always shows the current figure.</p>
+      <table><thead><tr><th>Card</th><th>Career</th><th>Nation</th>
+        <th>Apps</th><th>Goals</th></tr></thead><tbody><tr><td>#20528</td><td>Man Marker</td><td>Netherlands</td><td>46</td><td>6</td></tr><tr><td>#33253</td><td>Grafter</td><td>Netherlands</td><td>26</td><td>17</td></tr><tr><td>#4356</td><td>Trialist</td><td>Netherlands</td><td>4</td><td>2</td></tr><tr><td>#18242</td><td>Anchor</td><td>Netherlands</td><td>38</td><td>13</td></tr><tr><td>#3020</td><td>Target Man</td><td>Netherlands</td><td>51</td><td>35</td></tr><tr><td>#4133</td><td>Stalwart</td><td>Netherlands</td><td>63</td><td>18</td></tr><tr><td>#14157</td><td>Playmaker</td><td>Netherlands</td><td>43</td><td>10</td></tr><tr><td>#6591</td><td>Sweeper</td><td>Netherlands</td><td>36</td><td>1</td></tr><tr><td>#1578</td><td>The Phenomenon</td><td>Netherlands</td><td>99</td><td>68</td></tr><tr><td>#15403</td><td>Poacher</td><td>Netherlands</td><td>21</td><td>22</td></tr><tr><td>#13796</td><td>Second Striker</td><td>Netherlands</td><td>44</td><td>26</td></tr><tr><td>#14168</td><td>Backup</td><td>Netherlands</td><td>26</td><td>5</td></tr><tr><td>#33246</td><td>Defender</td><td>Netherlands</td><td>35</td><td>9</td></tr><tr><td>#23378</td><td>Full Back</td><td>Netherlands</td><td>44</td><td>5</td></tr><tr><td>#310</td><td>Stopper</td><td>Netherlands</td><td>39</td><td>6</td></tr><tr><td>#2961</td><td>Impact Sub</td><td>Netherlands</td><td>13</td><td>11</td></tr><tr><td>#20669</td><td>Sharpshooter</td><td>Netherlands</td><td>71</td><td>51</td></tr><tr><td>#3005</td><td>Squad Player</td><td>Netherlands</td><td>13</td><td>5</td></tr><tr><td>#15101</td><td>Full Back</td><td>Netherlands</td><td>46</td><td>8</td></tr><tr><td>#1717</td><td>Shadow Striker</td><td>Netherlands</td><td>47</td><td>29</td></tr><tr><td>#12219</td><td>Youth Product</td><td>Netherlands</td><td>7</td><td>9</td></tr><tr><td>#18388</td><td>Veteran</td><td>Netherlands</td><td>69</td><td>9</td></tr><tr><td>#36522</td><td>Immortal Wall</td><td>Netherlands</td><td>93</td><td>2</td></tr><tr><td>#12161</td><td>Trialist</td><td>Netherlands</td><td>3</td><td>0</td></tr><tr><td>#15112</td><td>Target Man</td><td>Netherlands</td><td>54</td><td>39</td></tr><tr><td>#15887</td><td>Sweeper</td><td>Netherlands</td><td>35</td><td>6</td></tr><tr><td>#3627</td><td>Veteran</td><td>Netherlands</td><td>62</td><td>4</td></tr><tr><td>#3377</td><td>Poacher</td><td>Netherlands</td><td>25</td><td>22</td></tr><tr><td>#36291</td><td>Rotation</td><td>Netherlands</td><td>10</td><td>5</td></tr><tr><td>#15533</td><td>Skipper</td><td>Netherlands</td><td>53</td><td>18</td></tr><tr><td>#10737</td><td>Fox in the Box</td><td>Netherlands</td><td>48</td><td>39</td></tr><tr><td>#20668</td><td>The Rock</td><td>Netherlands</td><td>80</td><td>1</td></tr><tr><td>#20313</td><td>Old Guard</td><td>Netherlands</td><td>66</td><td>1</td></tr><tr><td>#33254</td><td>Iron Wall</td><td>Netherlands</td><td>73</td><td>7</td></tr><tr><td>#4002</td><td>Mainstay</td><td>Netherlands</td><td>69</td><td>16</td></tr><tr><td>#29000</td><td>Trialist</td><td>Netherlands</td><td>3</td><td>8</td></tr><tr><td>#12936</td><td>Stalwart</td><td>Netherlands</td><td>64</td><td>19</td></tr><tr><td>#2409</td><td>Anchor</td><td>Netherlands</td><td>39</td><td>14</td></tr><tr><td>#4528</td><td>Stopper</td><td>Netherlands</td><td>36</td><td>3</td></tr><tr><td>#24523</td><td>The General</td><td>Netherlands</td><td>77</td><td>15</td></tr></tbody></table>
+    </section>
+  </noscript>
+</main>
+
+<footer class="foot wrap">
+  <span class="blink"></span> Every number here is read straight from the contracts.
+  Data <span id="f-built">—</span>. A community project for the soccs collection,
+  built with the uToken community &mdash; independent of the uToken team.
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet"></div>
+  <button class="x" id="close" aria-label="Close">&times;</button>
+</div>
+
+<script src="/js/art.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

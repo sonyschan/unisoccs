@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>One Club Man — Career — Unisoccs</title>
+<meta name="description" content="Every soccs with One Club Man — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:title" content="One Club Man — Career — Unisoccs">
+<meta property="og:description" content="Every soccs with One Club Man — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="canonical" href="https://unisoccs.vercel.app/trait/career/one-club-man">
+<meta property="og:url" content="https://unisoccs.vercel.app/trait/career/one-club-man">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unisoccs.vercel.app/trait/career/one-club-man/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a1c2c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;900&family=Chivo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <div class="mark">UNI<b>SOCCS</b></div>
+    <nav class="top__nav">
+      <button class="nav__b" data-view="browse" aria-current="true">Players</button>
+      <button class="nav__b" data-view="tables">Tables</button>
+      <button class="nav__b" data-view="sealed">Sealed</button>
+      <button class="nav__b" data-view="method">Method</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <canvas id="wall"></canvas>
+  <div class="hero__in">
+    <h1>Every player.<br>Every trait.<br><em>Every career.</em></h1>
+    <p>The numbers on a soccs are a real career — appearances and goals,
+       written into the art itself. <b id="h-alive">—</b> players,
+       32 nations, 64 careers, and <b id="h-sealed">—</b> still to be opened.</p>
+    <div class="plates" id="plates"></div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section class="view" id="v-browse">
+    <div id="tbanner" hidden></div>
+    <div class="board">
+      <aside class="rail" id="rail"></aside>
+      <div>
+        <div class="bar">
+          <div class="count" id="count">—</div>
+          <div style="margin-left:auto" class="sel" id="revealsel"></div>
+          <div class="sel" id="sortsel"></div>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="grid" id="grid"></div>
+        <button class="more" id="more" hidden>Show more</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-tables" hidden>
+    <div class="tabs" id="tabs"></div>
+    <p class="lede" id="tlede"></p>
+    <div class="tw" id="twrap"></div>
+  </section>
+
+  <section class="view" id="v-sealed" hidden>
+    <p class="lede">
+      <b id="s-n">—</b> soccs have never been opened. Their nation, their career,
+      their goals are unknown even to the wallet holding them. Reveal is driven by trading,
+      not by a clock — so there is no countdown, only odds.
+      Every card below is ranked by the <b>exact probability</b> it finishes in the rarest 1%.
+    </p>
+    <div class="tw"><table id="stable"></table></div>
+  </section>
+
+  <section class="view" id="v-method" hidden>
+    <div id="method"></div>
+  </section>
+
+  <noscript>
+    <section class="wrap" style="padding-bottom:60px">
+      <h1 style="font-family:var(--display);font-size:44px;text-transform:uppercase">One Club Man</h1>
+      <p class="lede">Every soccs with One Club Man — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.</p>
+      <p class="lede">46 of the 2,585 revealed soccs carry it,
+        as of 27 Aug 2026. The live page above always shows the current figure.</p>
+      <table><thead><tr><th>Card</th><th>Career</th><th>Nation</th>
+        <th>Apps</th><th>Goals</th></tr></thead><tbody><tr><td>#1723</td><td>One Club Man</td><td>France</td><td>59</td><td>8</td></tr><tr><td>#30033</td><td>One Club Man</td><td>Iran</td><td>57</td><td>9</td></tr><tr><td>#5381</td><td>One Club Man</td><td>Argentina</td><td>57</td><td>9</td></tr><tr><td>#35212</td><td>One Club Man</td><td>France</td><td>53</td><td>8</td></tr><tr><td>#20533</td><td>One Club Man</td><td>Uruguay</td><td>57</td><td>5</td></tr><tr><td>#1</td><td>One Club Man</td><td>USA</td><td>59</td><td>2</td></tr><tr><td>#4641</td><td>One Club Man</td><td>Jamaica</td><td>53</td><td>7</td></tr><tr><td>#2413</td><td>One Club Man</td><td>Portugal</td><td>58</td><td>9</td></tr><tr><td>#11998</td><td>One Club Man</td><td>England</td><td>54</td><td>2</td></tr><tr><td>#20549</td><td>One Club Man</td><td>Russia</td><td>55</td><td>3</td></tr><tr><td>#6506</td><td>One Club Man</td><td>Spain</td><td>58</td><td>3</td></tr><tr><td>#13798</td><td>One Club Man</td><td>Germany</td><td>58</td><td>3</td></tr><tr><td>#12114</td><td>One Club Man</td><td>Iran</td><td>59</td><td>4</td></tr><tr><td>#3006</td><td>One Club Man</td><td>Argentina</td><td>57</td><td>1</td></tr><tr><td>#4642</td><td>One Club Man</td><td>Egypt</td><td>56</td><td>6</td></tr><tr><td>#21784</td><td>One Club Man</td><td>France</td><td>52</td><td>9</td></tr><tr><td>#6512</td><td>One Club Man</td><td>Peru</td><td>55</td><td>3</td></tr><tr><td>#10718</td><td>One Club Man</td><td>Italy</td><td>52</td><td>2</td></tr><tr><td>#4226</td><td>One Club Man</td><td>Nigeria</td><td>57</td><td>8</td></tr><tr><td>#4219</td><td>One Club Man</td><td>Belgium</td><td>53</td><td>4</td></tr><tr><td>#1892</td><td>One Club Man</td><td>South Korea</td><td>53</td><td>3</td></tr><tr><td>#3625</td><td>One Club Man</td><td>Ireland</td><td>56</td><td>1</td></tr><tr><td>#10797</td><td>One Club Man</td><td>Australia</td><td>51</td><td>3</td></tr><tr><td>#3319</td><td>One Club Man</td><td>Mexico</td><td>54</td><td>1</td></tr><tr><td>#291</td><td>One Club Man</td><td>Ghana</td><td>59</td><td>1</td></tr><tr><td>#87</td><td>One Club Man</td><td>Peru</td><td>52</td><td>5</td></tr><tr><td>#15412</td><td>One Club Man</td><td>Mexico</td><td>51</td><td>8</td></tr><tr><td>#3540</td><td>One Club Man</td><td>USA</td><td>57</td><td>2</td></tr><tr><td>#14186</td><td>One Club Man</td><td>Nigeria</td><td>55</td><td>5</td></tr><tr><td>#349</td><td>One Club Man</td><td>Denmark</td><td>58</td><td>8</td></tr><tr><td>#3636</td><td>One Club Man</td><td>Croatia</td><td>59</td><td>3</td></tr><tr><td>#3623</td><td>One Club Man</td><td>Jamaica</td><td>51</td><td>5</td></tr><tr><td>#4345</td><td>One Club Man</td><td>England</td><td>56</td><td>0</td></tr><tr><td>#20667</td><td>One Club Man</td><td>Finland</td><td>53</td><td>1</td></tr><tr><td>#3841</td><td>One Club Man</td><td>Uruguay</td><td>53</td><td>5</td></tr><tr><td>#850</td><td>One Club Man</td><td>Nigeria</td><td>51</td><td>5</td></tr><tr><td>#3972</td><td>One Club Man</td><td>Japan</td><td>51</td><td>7</td></tr><tr><td>#12180</td><td>One Club Man</td><td>Belgium</td><td>56</td><td>5</td></tr><tr><td>#2299</td><td>One Club Man</td><td>Spain</td><td>55</td><td>5</td></tr><tr><td>#3829</td><td>One Club Man</td><td>Belgium</td><td>59</td><td>5</td></tr></tbody></table>
+    </section>
+  </noscript>
+</main>
+
+<footer class="foot wrap">
+  <span class="blink"></span> Every number here is read straight from the contracts.
+  Data <span id="f-built">—</span>. A community project for the soccs collection,
+  built with the uToken community &mdash; independent of the uToken team.
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet"></div>
+  <button class="x" id="close" aria-label="Close">&times;</button>
+</div>
+
+<script src="/js/art.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

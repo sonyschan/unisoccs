@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Fox in the Box — Career — Unisoccs</title>
+<meta name="description" content="Every soccs with Fox in the Box — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:title" content="Fox in the Box — Career — Unisoccs">
+<meta property="og:description" content="Every soccs with Fox in the Box — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="canonical" href="https://unisoccs.vercel.app/trait/career/fox-in-the-box">
+<meta property="og:url" content="https://unisoccs.vercel.app/trait/career/fox-in-the-box">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unisoccs.vercel.app/trait/career/fox-in-the-box/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a1c2c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;900&family=Chivo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <div class="mark">UNI<b>SOCCS</b></div>
+    <nav class="top__nav">
+      <button class="nav__b" data-view="browse" aria-current="true">Players</button>
+      <button class="nav__b" data-view="tables">Tables</button>
+      <button class="nav__b" data-view="sealed">Sealed</button>
+      <button class="nav__b" data-view="method">Method</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <canvas id="wall"></canvas>
+  <div class="hero__in">
+    <h1>Every player.<br>Every trait.<br><em>Every career.</em></h1>
+    <p>The numbers on a soccs are a real career — appearances and goals,
+       written into the art itself. <b id="h-alive">—</b> players,
+       32 nations, 64 careers, and <b id="h-sealed">—</b> still to be opened.</p>
+    <div class="plates" id="plates"></div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section class="view" id="v-browse">
+    <div id="tbanner" hidden></div>
+    <div class="board">
+      <aside class="rail" id="rail"></aside>
+      <div>
+        <div class="bar">
+          <div class="count" id="count">—</div>
+          <div style="margin-left:auto" class="sel" id="revealsel"></div>
+          <div class="sel" id="sortsel"></div>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="grid" id="grid"></div>
+        <button class="more" id="more" hidden>Show more</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-tables" hidden>
+    <div class="tabs" id="tabs"></div>
+    <p class="lede" id="tlede"></p>
+    <div class="tw" id="twrap"></div>
+  </section>
+
+  <section class="view" id="v-sealed" hidden>
+    <p class="lede">
+      <b id="s-n">—</b> soccs have never been opened. Their nation, their career,
+      their goals are unknown even to the wallet holding them. Reveal is driven by trading,
+      not by a clock — so there is no countdown, only odds.
+      Every card below is ranked by the <b>exact probability</b> it finishes in the rarest 1%.
+    </p>
+    <div class="tw"><table id="stable"></table></div>
+  </section>
+
+  <section class="view" id="v-method" hidden>
+    <div id="method"></div>
+  </section>
+
+  <noscript>
+    <section class="wrap" style="padding-bottom:60px">
+      <h1 style="font-family:var(--display);font-size:44px;text-transform:uppercase">Fox in the Box</h1>
+      <p class="lede">Every soccs with Fox in the Box — about 1 in 64 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.</p>
+      <p class="lede">33 of the 2,585 revealed soccs carry it,
+        as of 27 Aug 2026. The live page above always shows the current figure.</p>
+      <table><thead><tr><th>Card</th><th>Career</th><th>Nation</th>
+        <th>Apps</th><th>Goals</th></tr></thead><tbody><tr><td>#33119</td><td>Fox in the Box</td><td>Morocco</td><td>48</td><td>39</td></tr><tr><td>#10793</td><td>Fox in the Box</td><td>Brazil</td><td>44</td><td>37</td></tr><tr><td>#278</td><td>Fox in the Box</td><td>Morocco</td><td>40</td><td>35</td></tr><tr><td>#2275</td><td>Fox in the Box</td><td>England</td><td>47</td><td>35</td></tr><tr><td>#2270</td><td>Fox in the Box</td><td>Portugal</td><td>41</td><td>38</td></tr><tr><td>#1405</td><td>Fox in the Box</td><td>USA</td><td>43</td><td>36</td></tr><tr><td>#14148</td><td>Fox in the Box</td><td>Spain</td><td>41</td><td>36</td></tr><tr><td>#3971</td><td>Fox in the Box</td><td>Denmark</td><td>41</td><td>30</td></tr><tr><td>#22755</td><td>Fox in the Box</td><td>Japan</td><td>44</td><td>30</td></tr><tr><td>#32984</td><td>Fox in the Box</td><td>Argentina</td><td>47</td><td>36</td></tr><tr><td>#10734</td><td>Fox in the Box</td><td>Brazil</td><td>46</td><td>38</td></tr><tr><td>#6489</td><td>Fox in the Box</td><td>Jamaica</td><td>40</td><td>33</td></tr><tr><td>#3974</td><td>Fox in the Box</td><td>Spain</td><td>41</td><td>39</td></tr><tr><td>#3021</td><td>Fox in the Box</td><td>Belgium</td><td>45</td><td>33</td></tr><tr><td>#20521</td><td>Fox in the Box</td><td>Colombia</td><td>48</td><td>34</td></tr><tr><td>#1667</td><td>Fox in the Box</td><td>Uruguay</td><td>44</td><td>38</td></tr><tr><td>#10737</td><td>Fox in the Box</td><td>Netherlands</td><td>48</td><td>39</td></tr><tr><td>#14539</td><td>Fox in the Box</td><td>Croatia</td><td>47</td><td>32</td></tr><tr><td>#15840</td><td>Fox in the Box</td><td>Ireland</td><td>40</td><td>38</td></tr><tr><td>#23470</td><td>Fox in the Box</td><td>Uruguay</td><td>48</td><td>35</td></tr><tr><td>#35111</td><td>Fox in the Box</td><td>Japan</td><td>45</td><td>33</td></tr><tr><td>#10649</td><td>Fox in the Box</td><td>USA</td><td>49</td><td>37</td></tr><tr><td>#2250</td><td>Fox in the Box</td><td>Ukraine</td><td>40</td><td>30</td></tr><tr><td>#20336</td><td>Fox in the Box</td><td>USA</td><td>43</td><td>37</td></tr><tr><td>#35134</td><td>Fox in the Box</td><td>Ghana</td><td>49</td><td>37</td></tr><tr><td>#4033</td><td>Fox in the Box</td><td>Croatia</td><td>48</td><td>33</td></tr><tr><td>#35091</td><td>Fox in the Box</td><td>Nigeria</td><td>40</td><td>38</td></tr><tr><td>#12212</td><td>Fox in the Box</td><td>Ukraine</td><td>40</td><td>36</td></tr><tr><td>#336</td><td>Fox in the Box</td><td>Colombia</td><td>48</td><td>32</td></tr><tr><td>#1822</td><td>Fox in the Box</td><td>Morocco</td><td>40</td><td>33</td></tr><tr><td>#79</td><td>Fox in the Box</td><td>Denmark</td><td>45</td><td>33</td></tr><tr><td>#10747</td><td>Fox in the Box</td><td>Ireland</td><td>47</td><td>37</td></tr><tr><td>#2380</td><td>Fox in the Box</td><td>Argentina</td><td>45</td><td>37</td></tr></tbody></table>
+    </section>
+  </noscript>
+</main>
+
+<footer class="foot wrap">
+  <span class="blink"></span> Every number here is read straight from the contracts.
+  Data <span id="f-built">—</span>. A community project for the soccs collection,
+  built with the uToken community &mdash; independent of the uToken team.
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet"></div>
+  <button class="x" id="close" aria-label="Close">&times;</button>
+</div>
+
+<script src="/js/art.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

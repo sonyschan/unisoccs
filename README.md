@@ -4,16 +4,23 @@
 for the [soccs](https://utoken.so/collection/0x4c2d0c58ebe95b9c0eeea4ee08d22072efb0affe) collection
 on Robinhood Chain.
 
-uToken hosts the art but has no rarity scoring, no trait filtering, and no way to see every card
-sharing a trait — so holders cannot tell what they are holding, and cannot price a listing. This is
-that missing index layer.
+**Every soccs is a footballer with a real career.** The two numbers on each card are appearances
+and goals, written into the art itself — `Immortal Wall` with `+9 / +1` is a 99-appearance,
+one-goal defender, and the card renders `99` and `01`. Across 7,349 players there are 32 nations,
+64 careers, and enough to field a best XI for every country.
 
-Not affiliated with uToken. Built at the unipeg team's invitation.
+This site is the record book: search it, sort it, filter it on all 13 layers, and see what is still
+sealed.
+
+A community project, built with the uToken community at the unipeg team's invitation, and
+independent of the uToken team.
 
 ---
 
 ## What it does
 
+- **Every card's real career.** Appearances, goals, goals-per-appearance, and a position derived
+  from the ratio — all decoded from the collection's own art.
 - **Filter on all 13 layers.** Within a layer OR, across layers AND, with counts that narrow as you
   drill. Absence is a first-class value — `Hair` is drawn on 95% of cards, so **bald is a 5% signal**,
   rarer than any named hairstyle.

@@ -22,9 +22,9 @@ let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
 /* ---------------------------------------------------------------- boot */
 (async function boot() {
   const [idx, els, digits] = await Promise.all([
-    fetch('data/index.json').then(r => r.json()),
-    fetch('data/elements.json').then(r => r.json()),
-    fetch('data/digits.json').then(r => r.json()),
+    fetch('/data/index.json').then(r => r.json()),
+    fetch('/data/elements.json').then(r => r.json()),
+    fetch('/data/digits.json').then(r => r.json()),
   ]).catch(err => {
     document.body.innerHTML = '<p style="padding:40px;font:16px sans-serif;color:#eef1f8">' +
       'Could not load the index. If you opened this file directly, serve it instead: ' +
@@ -45,6 +45,7 @@ let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
   buildTabs();
   buildMethod();
   bindNav();
+  applyTraitRoute();
   render();
 })();
 
@@ -74,6 +75,7 @@ const noneLabel = li => NONE[li] || 'None';
 /* ---------------------------------------------------------------- hero */
 function buildHero() {
   $('#h-alive').textContent = fmt(D.meta.alive);
+  const hs = $('#h-sealed'); if (hs) hs.textContent = fmt(D.meta.sealed);
   $('#s-n').textContent = fmt(D.meta.sealed);
   $('#f-built').textContent = new Date(D.meta.builtAt * 1000)
     .toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -374,7 +376,10 @@ function renderChips() {
   if (out.length > 1) out.push('<button class="chip chip--clear" data-clear="all">Clear all</button>');
   $('#chips').innerHTML = out.join('');
   $$('#chips .chip').forEach(c => c.onclick = () => {
-    if (c.dataset.clear === 'all') { F.layers = {}; F.sealedLayer = {}; F.tier = null; }
+    if (c.dataset.clear === 'all') {
+      if (traitRoute()) { location.href = '/'; return; }
+      F.layers = {}; F.sealedLayer = {}; F.tier = null;
+    }
     else if (c.dataset.clear === 'tier') F.tier = null;
     else F.layers[c.dataset.l].delete(+c.dataset.e);
     facetCache.clear(); page = 1; render();
@@ -457,8 +462,8 @@ const TABS = {
   oddities: {
     label: 'Oddities',
     lede: () => `The cards that break their own type. A defensive career with goals against its name,
-      a poacher who barely played, a shaven-headed 5%-er. These are the queries the marketplace
-      cannot express at all.`,
+      a poacher who barely played, a shaven-headed 5%-er. Every one of these is a real record
+      somebody is holding.`,
     custom: odditiesView,
   },
 };
@@ -634,8 +639,9 @@ function buildMethod() {
   $('#method').innerHTML = `
   <h2 style="font-family:var(--display);font-weight:900;font-size:44px;text-transform:uppercase;
     letter-spacing:-.005em;margin-bottom:6px">How this is worked out</h2>
-  <p class="lede">Everything below is computed from chain reads and committed as a static file.
-    Nothing here is a marketplace estimate, and nothing is an opinion unless it says so.</p>
+  <p class="lede">Everything below is computed from chain reads and committed as a static file, so
+    every number on this site is reproducible from the contracts. Where something is a judgement
+    rather than a measurement, it says so.</p>
 
   <div class="panel"><h4>Rarity is presence, not permutation</h4>
     <p style="font-size:14px">Inside any layer, every element is equally likely — measured across the
@@ -773,4 +779,70 @@ function bindNav() {
   $('#close').onclick = () => $('#modal').hidden = true;
   $('#modal').onclick = e => { if (e.target.id === 'modal') $('#modal').hidden = true; };
   addEventListener('keydown', e => { if (e.key === 'Escape') $('#modal').hidden = true; });
+}
+
+/* ---------------------------------------------------------------- trait routes
+   /trait/<layer>/<value> — one addressable page per trait, ~180 of them.
+   An index whose entries have no address is not an index. The static shell that
+   serves this path already carries the title, description and og tags; this
+   seeds the filter and renders the banner over the top of it. */
+function traitRoute() {
+  const m = location.pathname.match(/^\/trait\/([a-z0-9-]+)\/([a-z0-9-]+)\/?$/);
+  if (!m) return null;
+  const L = LAYERS.find(l => l.slug === m[1]);
+  if (!L) return null;
+  const el = m[2] === 'none'
+    ? (L.optional ? 0 : null)
+    : (L.slugs.indexOf(m[2]) + 1 || null);
+  return el === null ? null : { L, el };
+}
+
+function applyTraitRoute() {
+  const r = traitRoute();
+  if (!r) return false;
+  F.layers[r.L.index] = new Set([r.el]);
+  facetCache.clear();
+  // Someone arriving from a shared link wants the trait, not the site pitch.
+  // The banner is the hero on these pages.
+  document.documentElement.classList.add('is-trait');
+  renderTraitBanner(r.L, r.el);
+  return true;
+}
+
+function renderTraitBanner(L, el) {
+  const name = label(L.index, el);
+  const pool = ASSETS.filter(a => a.lv === 13);
+  const have = pool.filter(a => a.t[L.index] === el).length;
+  const pct = pool.length ? (100 * have / pool.length) : 0;
+  // what the generator should produce, independent of how much has been revealed
+  const q = L.bps / 100000;
+  const expected = (el === 0 ? (1 - q) : q / L.names.length) * D.meta.alive;
+  const best = pool.filter(a => a.t[L.index] === el)
+                   .sort((a, b) => a.clsRank - b.clsRank || a.orRank - b.orRank)[0];
+  const scorer = pool.filter(a => a.t[L.index] === el && a.goals != null)
+                     .sort((a, b) => b.goals - a.goals)[0];
+
+  const b = $('#tbanner');
+  b.hidden = false;
+  b.innerHTML = `<div class="tban">
+    <canvas></canvas>
+    <div class="tban__b">
+      <div class="tban__k">${L.name}${L.optional ? ` &middot; drawn on ${L.bps / 1000}% of cards` : ''}</div>
+      <h1>${name}</h1>
+      <p>${have
+        ? `<b>${fmt(have)}</b> of the ${fmt(pool.length)} revealed soccs carry it &mdash;
+           ${pct.toFixed(2)}%. Across the whole living collection the generator should make about
+           <b>${Math.round(expected).toLocaleString()}</b>.`
+        : `No revealed soccs carries it yet. The generator should eventually make about
+           <b>${Math.round(expected).toLocaleString()}</b>.`}</p>
+      <div class="tban__s">
+        ${best ? `<div><b>#${best.id}</b><span>rarest with it</span></div>` : ''}
+        ${scorer ? `<div><b>${scorer.goals}</b><span>most goals &middot; #${scorer.id}</span></div>` : ''}
+        <div><b>${fmt(have)}</b><span>revealed</span></div>
+      </div>
+      <p style="margin-top:10px"><a href="/">&larr; every player</a></p>
+    </div></div>`;
+  if (el !== 0) Art.paintElement(b.querySelector('canvas'), L.index, el, 5);
+  else b.querySelector('canvas').remove();
+  document.title = `${name} — ${L.name} — Unisoccs`;
 }

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Steel — Eyes — Unisoccs</title>
+<meta name="description" content="Every soccs with Steel — about 1 in 7 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta property="og:title" content="Steel — Eyes — Unisoccs">
+<meta property="og:description" content="Every soccs with Steel — about 1 in 7 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.">
+<link rel="canonical" href="https://unisoccs.vercel.app/trait/eyes/steel">
+<meta property="og:url" content="https://unisoccs.vercel.app/trait/eyes/steel">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://unisoccs.vercel.app/trait/eyes/steel/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1a1c2c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;900&family=Chivo:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top__in">
+    <div class="mark">UNI<b>SOCCS</b></div>
+    <nav class="top__nav">
+      <button class="nav__b" data-view="browse" aria-current="true">Players</button>
+      <button class="nav__b" data-view="tables">Tables</button>
+      <button class="nav__b" data-view="sealed">Sealed</button>
+      <button class="nav__b" data-view="method">Method</button>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <canvas id="wall"></canvas>
+  <div class="hero__in">
+    <h1>Every player.<br>Every trait.<br><em>Every career.</em></h1>
+    <p>The numbers on a soccs are a real career — appearances and goals,
+       written into the art itself. <b id="h-alive">—</b> players,
+       32 nations, 64 careers, and <b id="h-sealed">—</b> still to be opened.</p>
+    <div class="plates" id="plates"></div>
+  </div>
+</section>
+
+<main class="wrap">
+
+  <section class="view" id="v-browse">
+    <div id="tbanner" hidden></div>
+    <div class="board">
+      <aside class="rail" id="rail"></aside>
+      <div>
+        <div class="bar">
+          <div class="count" id="count">—</div>
+          <div style="margin-left:auto" class="sel" id="revealsel"></div>
+          <div class="sel" id="sortsel"></div>
+        </div>
+        <div class="chips" id="chips"></div>
+        <div class="grid" id="grid"></div>
+        <button class="more" id="more" hidden>Show more</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-tables" hidden>
+    <div class="tabs" id="tabs"></div>
+    <p class="lede" id="tlede"></p>
+    <div class="tw" id="twrap"></div>
+  </section>
+
+  <section class="view" id="v-sealed" hidden>
+    <p class="lede">
+      <b id="s-n">—</b> soccs have never been opened. Their nation, their career,
+      their goals are unknown even to the wallet holding them. Reveal is driven by trading,
+      not by a clock — so there is no countdown, only odds.
+      Every card below is ranked by the <b>exact probability</b> it finishes in the rarest 1%.
+    </p>
+    <div class="tw"><table id="stable"></table></div>
+  </section>
+
+  <section class="view" id="v-method" hidden>
+    <div id="method"></div>
+  </section>
+
+  <noscript>
+    <section class="wrap" style="padding-bottom:60px">
+      <h1 style="font-family:var(--display);font-size:44px;text-transform:uppercase">Steel</h1>
+      <p class="lede">Every soccs with Steel — about 1 in 7 soccs carries it. Full career records: appearances, goals, nation, rarity class, and which are still sealed.</p>
+      <p class="lede">340 of the 2,585 revealed soccs carry it,
+        as of 27 Aug 2026. The live page above always shows the current figure.</p>
+      <table><thead><tr><th>Card</th><th>Career</th><th>Nation</th>
+        <th>Apps</th><th>Goals</th></tr></thead><tbody><tr><td>#286</td><td>Man Marker</td><td>USA</td><td>43</td><td>7</td></tr><tr><td>#10694</td><td>Immortal Wall</td><td>South Korea</td><td>96</td><td>4</td></tr><tr><td>#304</td><td>Playmaker</td><td>Finland</td><td>46</td><td>17</td></tr><tr><td>#5381</td><td>One Club Man</td><td>Argentina</td><td>57</td><td>9</td></tr><tr><td>#20302</td><td>The Monument</td><td>Croatia</td><td>91</td><td>19</td></tr><tr><td>#27494</td><td>Creator</td><td>Egypt</td><td>45</td><td>19</td></tr><tr><td>#22223</td><td>Youth Product</td><td>Ghana</td><td>0</td><td>0</td></tr><tr><td>#12924</td><td>Anchor</td><td>Uruguay</td><td>38</td><td>15</td></tr><tr><td>#1645</td><td>Living Legend</td><td>Morocco</td><td>94</td><td>36</td></tr><tr><td>#3961</td><td>Super Sub</td><td>Croatia</td><td>13</td><td>19</td></tr><tr><td>#9</td><td>Man Marker</td><td>Uruguay</td><td>48</td><td>4</td></tr><tr><td>#859</td><td>Maestro</td><td>Colombia</td><td>82</td><td>29</td></tr><tr><td>#3003</td><td>Iron Wall</td><td>Finland</td><td>71</td><td>8</td></tr><tr><td>#3620</td><td>Youth Product</td><td>Ghana</td><td>8</td><td>6</td></tr><tr><td>#4628</td><td>Backup</td><td>Germany</td><td>28</td><td>8</td></tr><tr><td>#4344</td><td>Midfield Engine</td><td>Senegal</td><td>30</td><td>11</td></tr><tr><td>#33707</td><td>Icon</td><td>Croatia</td><td>82</td><td>30</td></tr><tr><td>#26578</td><td>Skipper</td><td>Ukraine</td><td>54</td><td>15</td></tr><tr><td>#702</td><td>Grafter</td><td>Colombia</td><td>22</td><td>14</td></tr><tr><td>#2263</td><td>Centre Half</td><td>Mexico</td><td>43</td><td>5</td></tr><tr><td>#21227</td><td>Star Forward</td><td>Italy</td><td>73</td><td>44</td></tr><tr><td>#998</td><td>The Phenomenon</td><td>England</td><td>91</td><td>64</td></tr><tr><td>#20564</td><td>National Hero</td><td>Ghana</td><td>96</td><td>48</td></tr><tr><td>#12312</td><td>Poacher</td><td>USA</td><td>27</td><td>21</td></tr><tr><td>#21927</td><td>Box to Box</td><td>Peru</td><td>24</td><td>12</td></tr><tr><td>#14150</td><td>Wide Man</td><td>Jamaica</td><td>34</td><td>29</td></tr><tr><td>#20537</td><td>Stopper</td><td>Peru</td><td>32</td><td>1</td></tr><tr><td>#6159</td><td>Winger</td><td>Russia</td><td>38</td><td>25</td></tr><tr><td>#2273</td><td>Stopper</td><td>Senegal</td><td>33</td><td>5</td></tr><tr><td>#4641</td><td>One Club Man</td><td>Jamaica</td><td>53</td><td>7</td></tr><tr><td>#6933</td><td>Captain</td><td>Senegal</td><td>59</td><td>19</td></tr><tr><td>#2232</td><td>Goal Machine</td><td>Ukraine</td><td>81</td><td>61</td></tr><tr><td>#3951</td><td>Winger</td><td>Argentina</td><td>39</td><td>29</td></tr><tr><td>#1833</td><td>Metronome</td><td>Brazil</td><td>74</td><td>24</td></tr><tr><td>#14225</td><td>Workhorse</td><td>Australia</td><td>24</td><td>17</td></tr><tr><td>#15118</td><td>The Monument</td><td>Egypt</td><td>96</td><td>14</td></tr><tr><td>#1390</td><td>Impact Sub</td><td>Sweden</td><td>15</td><td>16</td></tr><tr><td>#12220</td><td>Rotation</td><td>Iran</td><td>17</td><td>6</td></tr><tr><td>#689</td><td>Anchor</td><td>Mexico</td><td>38</td><td>16</td></tr><tr><td>#4621</td><td>Workhorse</td><td>Ghana</td><td>29</td><td>19</td></tr></tbody></table>
+    </section>
+  </noscript>
+</main>
+
+<footer class="foot wrap">
+  <span class="blink"></span> Every number here is read straight from the contracts.
+  Data <span id="f-built">—</span>. A community project for the soccs collection,
+  built with the uToken community &mdash; independent of the uToken team.
+</footer>
+
+<div class="modal" id="modal" hidden>
+  <div class="sheet" id="sheet"></div>
+  <button class="x" id="close" aria-label="Close">&times;</button>
+</div>
+
+<script src="/js/art.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
