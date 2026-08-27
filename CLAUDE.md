@@ -468,6 +468,23 @@ full-bleed section (topbar, hero, wall) spans the viewport; only the inner colum
 three read from the same token so their edges line up. An index earns its width: 2560px gives
 **9 cards per row**, not 6.
 
+**A total over a group is usually a headcount in disguise.** The Nations table ranked by the sum of
+every player's goals. Nation and Career are independent layers, so nation carries no strength
+information at all — correlation(revealed count, total goals) was **0.765**, i.e. the table was
+ranking which nations happened to have had more cards opened. It now ranks by **best XI goals**
+(correlation 0.266), and the lede says outright that this is not a power ranking.
+
+**Position comes from the CAREER's baseline, never the card's final ratio.** `goals = base + (0..9)`,
+so requiring `goals == 0` to be a defender selected for "zero base AND rolled +0" — 3.4% of cards —
+and most nations could not field a back four. Deriving it from `goalsBase / appsBase` gives
+DEF 19 / MID 11 / AM 16 / FWD 15 careers, and every nation fills an XI. The career *is* the position;
+the +N is a modifier on top of it.
+
+**`.sheet__art canvas` also matched the stat plates nested inside it** and won on source order,
+blowing 26px scoreboard numerals up to 288px and crushing the modal to a 25px column. It shipped,
+because the only card modal ever screenshotted was a sealed one — which has no stat plates.
+Descendant selectors over a container that holds other components need `>`.
+
 **An indicator that never varies in a view is not an indicator.** The reveal meter used to render
 on every card; the Players pool is revealed-only, so it was 13/13 on all of them and read as
 decoration. It now renders only when `lv < 13` — its *presence* is the signal — and carries an

@@ -21,7 +21,20 @@ CHECK    = "--check" in sys.argv
 
 IDX  = json.load(open(D("data", "index.json")))
 ELS  = json.load(open(D("data", "elements.json")))
-SHELL = open(D("index.html")).read()
+
+def stamp_css():
+    """Version the stylesheet by its own content, so it can be cached hard and
+    still invalidate the instant it changes. Idempotent."""
+    css = open(D("styles.css"), "rb").read()
+    v = hashlib.sha256(css).hexdigest()[:10]
+    html_ = open(D("index.html")).read()
+    new = re.sub(r'href="/styles\.css(\?v=[0-9a-f]+)?"', f'href="/styles.css?v={v}"', html_)
+    if new != html_:
+        open(D("index.html"), "w").write(new)
+        print(f"styles.css -> ?v={v}")
+    return new
+
+SHELL = stamp_css()
 
 LAYERS = IDX["layers"]
 SETTLED = [a for a in IDX["assets"] if a["lv"] == 13]

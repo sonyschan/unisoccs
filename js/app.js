@@ -453,10 +453,14 @@ const TABS = {
   },
   nations: {
     label: 'Nations',
-    lede: () => `All 32 nations, by how many revealed players carry them and how strong those players
-      are. Click a nation to see its best XI — picked by career record, with positions derived from each
-      player's goals-per-appearance ratio. <b>There is no goalkeeper anywhere in the 64 careers</b>,
-      so every XI here is outfield.`,
+    lede: () => `A nation says nothing about how good a player is — the two layers are drawn
+      independently — so this is <b>not</b> a power ranking, and adding up every player's goals would
+      really just be ranking which nations happen to have had more cards opened. Instead each nation
+      is ranked by its <b>best XI</b>: the strongest eleven you could actually field from it.
+      (An "XI" is a starting eleven — the eleven players on the pitch.)
+      Positions come from each career's own baseline, and since
+      <b>no goalkeeper exists among the 64 careers</b>, every XI here is outfield: four defenders,
+      three in midfield, one attacking midfielder, three forwards. Click a nation to see its team.`,
     custom: nationsView,
   },
   oddities: {
@@ -508,23 +512,30 @@ function hydrate(root) {
 function nationsView(wrap) {
   const table = document.createElement('table');
   wrap.appendChild(table);
+  const settled = ASSETS.filter(a => a.lv === 13 && a.apps != null);
   const rows = LAYERS[2].names.map((n, i) => {
     const el = i + 1;
-    const players = POOL().filter(a => a.t[2] === el);
-    const best = players.slice().sort((x, y) => (y.apps + y.goals) - (x.apps + x.goals))[0];
-    const goals = players.reduce((s, a) => s + (a.goals || 0), 0);
-    return { name: n, el, n: players.length, goals, best };
-  }).sort((a, b) => b.goals - a.goals);
+    const players = settled.filter(a => a.t[2] === el);
+    const xi = pickXI(players);
+    return { name: n, el, n: players.length,
+             xiGoals: xi.reduce((s, a) => s + a.goals, 0),
+             xiApps:  xi.reduce((s, a) => s + a.apps, 0),
+             full: xi.length === 11,
+             best: players.slice().sort((x, y) => (y.goals * 2 + y.apps) - (x.goals * 2 + x.apps))[0] };
+  }).sort((a, b) => b.xiGoals - a.xiGoals);
 
   table.innerHTML =
-    `<thead><tr><th></th><th></th><th>Nation</th><th>Revealed</th><th class="num">Total goals</th>
+    `<thead><tr><th></th><th></th><th>Nation</th><th class="num">Revealed</th>
+       <th class="num">Best XI goals</th><th class="num">Best XI apps</th>
        <th>Star player</th><th class="num">Record</th></tr></thead>
      <tbody>${rows.map((r, i) => `<tr data-nat="${r.el}">
         <td class="rank">${i + 1}</td>
         <td class="art">${r.best ? art(r.best) : ''}</td>
         <td><b>${r.name}</b></td>
-        <td>${fmt(r.n)}</td>
-        <td class="num"><b style="color:var(--amber)">${fmt(r.goals)}</b></td>
+        <td class="num" style="color:var(--chalk-dim)">${fmt(r.n)}</td>
+        <td class="num"><b style="color:var(--amber)">${fmt(r.xiGoals)}</b>${
+          r.full ? '' : ` <span style="color:var(--sealed)">${r.xi ? '' : ''}(short)</span>`}</td>
+        <td class="num" style="color:var(--chalk-dim)">${fmt(r.xiApps)}</td>
         <td>${r.best ? `#${r.best.id} <span style="color:var(--chalk-faint)">${r.best.career}</span>` : '—'}</td>
         <td class="num">${r.best ? `${r.best.apps}/${r.best.goals}` : '—'}</td>
       </tr>`).join('')}</tbody>`;
@@ -533,16 +544,21 @@ function nationsView(wrap) {
     tr.onclick = () => showXI(+tr.dataset.nat));
 }
 
-/* 4-3-1-3, outfield only: there is no goalkeeper in the 64 career names. */
-const FORMATION = [['DEF', 4], ['MID', 3], ['AM', 1], ['FWD', 3]];
-function showXI(el) {
-  const pool = POOL().filter(a => a.t[2] === el && a.apps != null);
-  const picked = [], used = new Set();
+/* 4-3-1-3, outfield only: there is no goalkeeper among the 64 careers. */
+function pickXI(pool) {
+  const out = [], used = new Set();
   for (const [pos, n] of FORMATION) {
     pool.filter(a => a.pos === pos && !used.has(a.id))
-      .sort((x, y) => (y.goals * 2 + y.apps) - (x.goals * 2 + x.apps))
-      .slice(0, n).forEach(a => { picked.push(a); used.add(a.id); });
+        .sort((x, y) => (y.goals * 2 + y.apps) - (x.goals * 2 + x.apps))
+        .slice(0, n).forEach(a => { out.push(a); used.add(a.id); });
   }
+  return out;
+}
+
+const FORMATION = [['DEF', 4], ['MID', 3], ['AM', 1], ['FWD', 3]];
+function showXI(el) {
+  const pool = ASSETS.filter(a => a.lv === 13 && a.t[2] === el && a.apps != null);
+  const picked = pickXI(pool);
   const name = LAYERS[2].names[el - 1];
   const short = picked.length < 11;
   openSheet(`
@@ -652,6 +668,24 @@ function buildMethod() {
     <p style="font-size:14px">Absence counts. Hair appears on 95% of cards, so a bald player is a
     5% signal — rarer than any named hairstyle.</p></div>
 
+  <div class="panel"><h4>Three ways to be rare, and they disagree on purpose</h4>
+    <p style="font-size:var(--fs-micro)">A single rarity number cannot answer every question, so
+    this site keeps three separate ones and never averages them.</p>
+    <p style="font-size:var(--fs-micro)"><b>1 &middot; Rarity class</b> — which of the five optional
+    layers a card carries. Coarse by nature (${D.meta.classesSeen} classes), but it is the only axis
+    that <b>never moves</b>: it does not depend on how much of the collection has been opened, so a
+    card's class today is its class forever.</p>
+    <p style="font-size:var(--fs-micro)"><b>2 &middot; Exact combination odds</b> — because the
+    layers are drawn independently and evenly within themselves, the probability of <i>any</i>
+    combination is exact arithmetic rather than a measurement. Every card page shows how many should
+    exist with its record, its nation-and-career pairing, and its complete set of thirteen layers.
+    This is the axis that answers <i>"how many are there like mine"</i>, and no amount of counting
+    the crowd can produce it.</p>
+    <p style="font-size:var(--fs-micro)"><b>3 &middot; OpenRarity</b> — the familiar
+    information-content score, below, with the caveat it deserves.</p>
+    <p style="font-size:var(--fs-micro)">There is a fourth for anything unopened: the exact
+    probability it lands in the rarest 1%, on the Sealed page.</p></div>
+
   <div class="panel"><h4>OpenRarity is here, and here is its honest caption</h4>
     <p style="font-size:14px">We compute the standard information-content score
     (Σ −log₂ p, normalised by collection entropy H = ${D.meta.entropyEmpirical}) over the
@@ -698,6 +732,65 @@ function buildMethod() {
     counts and ranks move down as well as up. Every number on this site is stamped with the moment it
     was built. Rank denominators are the currently revealed set, not the eventual one — as reveal
     progresses, ranks will shift, but the <b>class</b> a card belongs to never will.</p></div>`;
+}
+
+/* ---------------------------------------------------------------- scarcity
+   The layers are independent and uniform within themselves, so the a-priori
+   probability of ANY combination is exact — no estimation, no sampling error.
+   That is something an entropy score cannot give you: OpenRarity ranks a card
+   against the crowd, this says how many should exist at all. */
+const P_LAYER = (li, el) => {
+  const q = LAYERS[li].bps / 100000;
+  return el === 0 ? 1 - q : q / LAYERS[li].names.length;
+};
+const pOf = (...pairs) => pairs.reduce((p, [li, el]) => p * P_LAYER(li, el), 1);
+
+let TWINS = null, RECORD_N = null, NATCAR_N = null;
+function scarcityIndex() {
+  if (TWINS) return;
+  TWINS = new Map(); RECORD_N = new Map(); NATCAR_N = new Map();
+  const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
+  for (const a of ASSETS) {
+    if (a.lv !== 13) continue;
+    bump(TWINS, a.t.join(','));
+    bump(RECORD_N, `${a.t[CAREER]}/${a.t[APPS]}/${a.t[GOALS]}`);
+    bump(NATCAR_N, `${a.t[2]}/${a.t[CAREER]}`);
+  }
+}
+
+function scarcityRows(a) {
+  scarcityIndex();
+  const alive = D.meta.alive;
+  const fmtExp = p => {
+    const n = p * alive;
+    return n >= 10   ? Math.round(n).toLocaleString()
+         : n >= 1    ? n.toFixed(1)
+         : n >= 0.01 ? n.toFixed(2)
+                     : 'under 0.01';
+  };
+  const oneIn = p => `1 in ${Math.round(1 / p).toLocaleString()}`;
+
+  const pRec = pOf([CAREER, a.t[CAREER]], [APPS, a.t[APPS]], [GOALS, a.t[GOALS]]);
+  const pNat = pOf([2, a.t[2]], [CAREER, a.t[CAREER]]);
+  const pAll = a.t.reduce((p, el, li) => p * P_LAYER(li, el), 1);
+
+  return [
+    [`${a.apps} apps, ${a.goals} goals`, 'this exact record', pRec,
+     RECORD_N.get(`${a.t[CAREER]}/${a.t[APPS]}/${a.t[GOALS]}`) || 0],
+    [`${label(2, a.t[2])} · ${a.career}`, 'this nation and career', pNat,
+     NATCAR_N.get(`${a.t[2]}/${a.t[CAREER]}`) || 0],
+    ['All thirteen layers', 'a card identical in every way', pAll,
+     (TWINS.get(a.t.join(',')) || 1) - 1],   // exclude the card itself
+  ].map(([h, sub, p, seen]) => `<div class="sc">
+      <div class="sc__k">${sub}</div>
+      <div class="sc__v">${h}</div>
+      <div class="sc__m"><b>${oneIn(p)}</b>
+        <span>&middot;</span> ${p * alive < 0.01
+          ? '<b>almost certainly unique</b>'
+          : `about <b>${fmtExp(p)}</b> should exist`}
+        <span>&middot;</span> <b style="color:${seen <= 1 ? 'var(--amber)' : 'var(--turf)'}">${
+          seen === 0 ? 'none' : seen}</b> found so far</div>
+    </div>`).join('');
 }
 
 /* ---------------------------------------------------------------- card */
@@ -754,6 +847,14 @@ function openCard(a) {
         <p>${a.career} starts at ${a.apps - (a.t[APPS] - 1)}/${a.goals - (a.t[GOALS] - 1)};
            this card's <b>+${a.t[APPS] - 1}</b> and <b>+${a.t[GOALS] - 1}</b> traits are the units digit.
            ${a.apps ? `That is <b>${(a.goals / a.apps).toFixed(2)}</b> goals per appearance.` : ''}</p>
+      </div>` : ''}
+      ${settled && a.apps != null ? `<div class="panel"><h4>How many should exist</h4>
+        <p style="margin:0 0 4px">The layers are drawn independently and evenly, so these are
+        <b>exact</b> odds &mdash; arithmetic, not an estimate from the crowd.</p>
+        ${scarcityRows(a)}
+        <p style="color:var(--chalk-faint);margin-top:10px">Counted against the
+          ${fmt(D.meta.settled)} cards revealed so far, so each figure climbs toward its expected
+          number as the rest open.</p>
       </div>` : ''}
       <dl class="kv">${rows}</dl>
     </div>`);

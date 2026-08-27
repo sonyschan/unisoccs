@@ -303,14 +303,14 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
   background:rgba(8,9,16,.82);backdrop-filter:blur(6px)}
 .modal[hidden]{display:none}
 .sheet{background:var(--pitch-deep);border:1px solid var(--line);border-radius:4px;
-  max-width:760px;width:100%;max-height:92vh;overflow-y:auto;
+  max-width:880px;width:100%;max-height:92vh;overflow-y:auto;
   display:grid;grid-template-columns:auto minmax(0,1fr);gap:26px;padding:26px;
   box-shadow:0 30px 90px rgba(0,0,0,.7)}
 @media(max-width:680px){.sheet{grid-template-columns:1fr;padding:18px;gap:18px}}
 .sheet__art{display:flex;flex-direction:column;gap:12px;align-items:center}
-.sheet__art canvas{width:288px;height:288px;background:var(--pitch);
+.sheet__art>canvas{width:288px;height:288px;background:var(--pitch);
   border:1px solid var(--line);border-radius:3px}
-@media(max-width:680px){.sheet__art canvas{width:216px;height:216px}}
+@media(max-width:680px){.sheet__art>canvas{width:216px;height:216px}}
 .sheet h2{font-family:var(--display);font-weight:900;font-size:44px;line-height:.9;
   text-transform:uppercase;letter-spacing:-.005em}
 .sheet h2 small{display:block;font-size:17px;letter-spacing:var(--ls-mid);
@@ -328,6 +328,13 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
 .big{font-family:var(--display);font-weight:900;font-size:34px;line-height:1;
   font-variant-numeric:tabular-nums}
 .panel p{font-size:var(--fs-micro);color:var(--chalk-dim);margin-top:7px}
+.sc{padding:9px 0;border-top:1px solid var(--line)}
+.sc__k{font-family:var(--display);font-weight:700;font-size:var(--fs-micro);
+  letter-spacing:var(--ls-mid);text-transform:uppercase;color:var(--chalk-faint)}
+.sc__v{font-size:var(--fs-sub);color:var(--chalk);font-weight:700;margin:1px 0 3px}
+.sc__m{font-size:var(--fs-micro);color:var(--chalk-dim);font-variant-numeric:tabular-nums}
+.sc__m b{color:var(--chalk);font-weight:700}
+.sc__m span{color:var(--chalk-faint);margin:0 3px}
 .envel{height:7px;background:var(--pitch-raised);border-radius:4px;position:relative;
   margin:11px 0 6px;overflow:hidden}
 .envel i{position:absolute;top:0;bottom:0;background:linear-gradient(90deg,var(--turf),var(--flood))}

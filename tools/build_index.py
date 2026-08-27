@@ -140,10 +140,21 @@ def career_line(vec):
             "apps":  c["appsBase"]  + vec[APPS]  - 1,
             "goals": c["goalsBase"] + vec[GOALS] - 1}
 
-def position(apps, goals):
-    if apps == 0: return "NONE"
-    r = goals / apps
-    return "DEF" if r == 0 else "MID" if r < 0.35 else "AM" if r < 0.6 else "FWD"
+def position(career_el):
+    """Position comes from the CAREER's own baseline, not the card's final line.
+
+    goals = base + (0..9), so a defender who happens to roll +3 still has goals
+    on the board. Deriving the position from the final ratio made "no goals at
+    all" the only way to be a defender — that is 3.4% of cards, and it left most
+    nations unable to field a back four. The career IS the position; the +N is a
+    modifier on top of it.
+    """
+    c = CSTAT[str(career_el)]
+    a, g = c["appsBase"], c["goalsBase"]
+    if a == 0:
+        return "FRINGE"                       # Prospect / Trialist / Youth Product
+    r = g / a
+    return "DEF" if r == 0 else "MID" if r < 0.3 else "AM" if r < 0.55 else "FWD"
 
 def open_rarity(vecs_settled):
     n = len(vecs_settled)
@@ -226,7 +237,7 @@ def main():
                     "or": round(orscore[a], 6), "orRank": orrank[a]}
             cl = career_line(v)
             if cl:
-                row |= cl | {"pos": position(cl["apps"], cl["goals"])}
+                row |= cl | {"pos": position(v[CAREER])}
         else:
             post = posterior(v)
             row["pTop1"] = round(sum(p for m, p in post.items() if CLASS_IC[m] >= top1_ic), 5)
