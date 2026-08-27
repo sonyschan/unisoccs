@@ -468,6 +468,19 @@ full-bleed section (topbar, hero, wall) spans the viewport; only the inner colum
 three read from the same token so their edges line up. An index earns its width: 2560px gives
 **9 cards per row**, not 6.
 
+**JavaScript re-sorts integer-like object keys, so JSON order is not order.** `data/index.json`
+emitted `classes` keyed by the 5-bit presence mask, rarest first. The browser enumerated them
+`0, 1, 4, 5, …` — ascending numeric — so the Method page's "rarest classes" table listed an
+arbitrary ten, and the hero's RAREST CLASS stat showed the count of the *second most common* class
+(32) instead of the rarest (2). Both looked entirely plausible, which is why it shipped.
+**The builder now emits `classOrder`; never iterate `classes` directly in the browser.** Any ordered
+collection crossing the Python/JS boundary needs an explicit array.
+
+**Rank classes by how many should exist, not by information content.** IC also rewards a present
+layer for having many elements, so two classes with identical odds (1 in 7,018) sat four places
+apart while the table's own "should exist" column said they were equal. A ranking must agree with
+the column next to it. Ties break on IC.
+
 **A total over a group is usually a headcount in disguise.** The Nations table ranked by the sum of
 every player's goals. Nation and Career are independent layers, so nation carries no strength
 information at all — correlation(revealed count, total goals) was **0.765**, i.e. the table was

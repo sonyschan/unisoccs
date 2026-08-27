@@ -84,7 +84,7 @@ function buildHero() {
     [D.meta.alive, 'living soccs', 'var(--chalk-num)'],
     [D.meta.sealed, 'never opened', 'var(--sealed)'],
     [D.meta.settled, 'fully revealed', 'var(--turf)'],
-    [D.classes[Object.keys(D.classes)[0]].count, 'rarest class', 'var(--amber)'],
+    [D.classes[D.classOrder[0]].count, 'in the rarest class', 'var(--amber)'],
   ];
   $('#plates').innerHTML = plates.map(([, l]) =>
     `<div class="plate"><canvas></canvas><span>${l}</span></div>`).join('');
@@ -651,7 +651,7 @@ function renderSealed() {
 
 /* ---------------------------------------------------------------- method */
 function buildMethod() {
-  const cls = Object.entries(D.classes).slice(0, 10);
+  const cls = D.classOrder.slice(0, 10).map(m => [m, D.classes[m]]);
   $('#method').innerHTML = `
   <h2 style="font-family:var(--display);font-weight:900;font-size:44px;text-transform:uppercase;
     letter-spacing:-.005em;margin-bottom:6px">How this is worked out</h2>
@@ -716,15 +716,25 @@ function buildMethod() {
     against the chain's own full renders: <b>0 differing pixels out of 576</b>. The art contract
     reports <code>isLocked() == true</code>, so those sprites can never change.</p></div>
 
-  <div class="panel"><h4>The rarest classes right now</h4>
-    <div class="tw"><table><thead><tr><th class="num">Class</th><th>Carries</th>
-      <th class="num">Exist</th><th class="num">Expected</th></tr></thead><tbody>
+  <div class="panel"><h4>The ten rarest classes</h4>
+    <p style="font-size:var(--fs-micro)">Ordered by how unlikely the generator is to produce them.
+    Carrying <b>more</b> optional layers is rarer, because four of the five are usually absent —
+    and a card carrying <i>nothing</i> optional is not common either, since that needs the 95%
+    Hair layer to be missing.</p>
+    <div class="tw"><table><thead><tr><th class="num">#</th><th>Carries</th>
+      <th class="num">Odds</th><th class="num">Should exist</th><th class="num">Found</th></tr></thead><tbody>
       ${cls.map(([m, c]) => `<tr><td class="num">${c.rank}</td><td>${
-        D.optionalLayers.filter((_, k) => m >> k & 1).join(' · ') || '<i>nothing optional</i>'
-      }</td><td class="num">${c.count}</td><td class="num">${c.expected}</td></tr>`).join('')}
+        D.optionalLayers.filter((_, k) => m >> k & 1)
+          .map(n => `<span style="color:${n === 'Special Kit' ? 'var(--kit)'
+                        : n === 'Foil' ? 'var(--foil-a)' : 'var(--chalk)'}">${n}</span>`).join(' · ')
+        || '<i style="color:var(--chalk-faint)">nothing optional</i>'
+      }</td><td class="num">1 in ${Math.round(1 / c.p).toLocaleString()}</td>
+        <td class="num">${c.expected < 1 ? c.expected : Math.round(c.expected).toLocaleString()}</td>
+        <td class="num"><b style="color:${c.count <= 5 ? 'var(--amber)' : 'var(--chalk)'}">${c.count}</b></td></tr>`).join('')}
     </tbody></table></div>
-    <p style="font-size:var(--fs-micro)">"Expected" is how many the generator should produce across all
-    ${fmt(D.meta.alive)} living cards. Where <i>Exist</i> runs under it, the rest are still sealed.</p>
+    <p style="font-size:var(--fs-micro)">"Should exist" is across all ${fmt(D.meta.alive)} living
+    cards; "Found" counts only the ${fmt(D.meta.settled)} revealed so far, so the gap between them
+    is still sealed.</p>
   </div>
 
   <div class="panel"><h4>Caveats worth knowing</h4>

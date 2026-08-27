@@ -205,7 +205,11 @@ def main():
     orrank = {a: i + 1 for i, a in enumerate(order)}
 
     cls_count = Counter(class_mask(v) for v in settled.values())
-    cls_order = sorted(cls_count, key=lambda m: -CLASS_IC[m])
+    # Rank by how many SHOULD exist, not by information content. IC also rewards
+    # a present layer for having many elements, so two classes with identical
+    # odds could land several places apart — and the table's own "should exist"
+    # column would then contradict its ordering. Ties break on IC.
+    cls_order = sorted(cls_count, key=lambda m: (CLASS_P[m], -CLASS_IC[m]))
     cls_rank  = {m: i + 1 for i, m in enumerate(cls_order)}
 
     # exact posterior over final class for anything not settled
@@ -259,6 +263,10 @@ def main():
                     "orTotal": len(settled), "entropyEmpirical": round(H, 4),
                     "classesSeen": len(cls_count),
                     "revealHistogram": {str(k): lvh[k] for k in sorted(lvh)}},
+           # ⚠️ classOrder exists because JS re-sorts integer-like object keys into
+           # ascending numeric order regardless of JSON order. Never iterate `classes`
+           # directly in the browser — walk classOrder.
+           "classOrder": cls_order,
            "classes": {str(m): {"ic": round(CLASS_IC[m], 4), "p": round(CLASS_P[m], 9),
                                 "count": cls_count[m], "rank": cls_rank[m],
                                 "expected": round(CLASS_P[m] * len(alive), 2)}
