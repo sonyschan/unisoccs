@@ -22,19 +22,26 @@ CHECK    = "--check" in sys.argv
 IDX  = json.load(open(D("data", "index.json")))
 ELS  = json.load(open(D("data", "elements.json")))
 
-def stamp_css():
-    """Version the stylesheet by its own content, so it can be cached hard and
-    still invalidate the instant it changes. Idempotent."""
-    css = open(D("styles.css"), "rb").read()
-    v = hashlib.sha256(css).hexdigest()[:10]
-    html_ = open(D("index.html")).read()
-    new = re.sub(r'href="/styles\.css(\?v=[0-9a-f]+)?"', f'href="/styles.css?v={v}"', html_)
-    if new != html_:
-        open(D("index.html"), "w").write(new)
-        print(f"styles.css -> ?v={v}")
-    return new
+def stamp_assets():
+    """Version every stylesheet and script by its own content, so they can be
+    cached hard and still invalidate the instant they change. Idempotent.
 
-SHELL = stamp_css()
+    Not cosmetic: a stale cached js/ file produced a live "is not a function"
+    during development, and the same thing would hit anyone whose browser held
+    an old copy across a deploy.
+    """
+    html_ = open(D("index.html")).read()
+    out = html_
+    for asset in ("styles.css", "js/art.js", "js/chain.js", "js/app.js"):
+        v = hashlib.sha256(open(D(asset), "rb").read()).hexdigest()[:10]
+        esc = re.escape("/" + asset)
+        out = re.sub(esc + r'(\?v=[0-9a-f]+)?"', f'/{asset}?v={v}"', out)
+    if out != html_:
+        open(D("index.html"), "w").write(out)
+        print("asset versions stamped")
+    return out
+
+SHELL = stamp_assets()
 
 LAYERS = IDX["layers"]
 SETTLED = [a for a in IDX["assets"] if a["lv"] == 13]

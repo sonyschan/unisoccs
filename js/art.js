@@ -9,11 +9,27 @@
        downscale pixel art, and never let a canvas be sized by a fraction. */
 const Art = (() => {
   const SEALED = -1, W = 24;
-  let PAL = [], EL = null, BG = '#1a1c2c', GLYPH = null;
+  let PAL = [], EL = null, BG = '#1a1c2c', GLYPH = null, KEEPER = null;
 
-  function init(elements, digits) {
+  function init(elements, digits, keeper) {
     PAL = elements.palette; EL = elements.elements; BG = elements.background;
     GLYPH = digits.glyphs;
+    KEEPER = keeper || null;
+  }
+
+  /** The stand-in goalkeeper. Not a soccs, not on chain, drawn transparent so
+      the pitch shows through — it must never read as a card. */
+  function paintKeeper(canvas, scale) {
+    if (!KEEPER) return;
+    const px = W * scale;
+    if (canvas.width !== px) { canvas.width = px; canvas.height = px; }
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, px, px);
+    for (const [x, y, w, h, ci] of KEEPER.rects) {
+      ctx.fillStyle = KEEPER.palette[ci];
+      ctx.fillRect(x * scale, y * scale, w * scale, h * scale);
+    }
   }
 
   // one ImageData per distinct trait vector — 4,400+ sealed cards share a single bitmap
@@ -102,5 +118,5 @@ const Art = (() => {
     }
   }
 
-  return { init, paint, paintElement, number, bitmap, SEALED, W };
+  return { init, paint, paintElement, paintKeeper, number, bitmap, SEALED, W };
 })();

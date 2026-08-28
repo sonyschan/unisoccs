@@ -324,13 +324,22 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pos__r{font-size:var(--fs-micro);color:rgba(255,255,255,.82);
   text-shadow:0 1px 3px rgba(0,0,0,.9);font-variant-numeric:tabular-nums}
+.pos--gk canvas{border-color:rgba(226,186,72,.85);background:transparent;
+  box-shadow:0 4px 10px rgba(0,0,0,.35)}
+.pos--gk .pos__r{color:rgba(255,255,255,.6);font-style:italic}
 .pos--empty canvas{border-style:dashed;border-color:rgba(238,241,248,.35);
   background:rgba(0,0,0,.22);box-shadow:none}
 .pos--empty .pos__n{color:rgba(255,255,255,.55)}
 @media(max-width:620px){
-  .pitch{aspect-ratio:.66}
-  .pos{width:60px}
+  /* a token is art plus two label lines, and eleven of them need vertical room:
+     at .66 the keeper sat on top of the centre-backs */
+  /* Five rows of tokens, each about 76px tall including its two label lines,
+     have to fit between 13% and 92% of the height. At .52 that was 383px for
+     380px of tokens and the keeper sat on the centre-backs. */
+  .pitch{aspect-ratio:.42}
+  .pos{width:62px}
   .pos canvas{width:48px;height:48px;border-width:1px}
+  .pos__n,.pos__r{line-height:1.05}
 }
 
 .xipick{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 8px}

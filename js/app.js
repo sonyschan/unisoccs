@@ -21,10 +21,11 @@ let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
 
 /* ---------------------------------------------------------------- boot */
 (async function boot() {
-  const [idx, els, digits] = await Promise.all([
+  const [idx, els, digits, keeper] = await Promise.all([
     fetch('/data/index.json').then(r => r.json()),
     fetch('/data/elements.json').then(r => r.json()),
     fetch('/data/digits.json').then(r => r.json()),
+    fetch('/data/keeper.json').then(r => r.json()).catch(() => null),
   ]).catch(err => {
     document.body.innerHTML = '<p style="padding:40px;font:16px sans-serif;color:#eef1f8">' +
       'Could not load the index. If you opened this file directly, serve it instead: ' +
@@ -35,7 +36,7 @@ let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
   D = idx; LAYERS = D.layers; ASSETS = D.assets;
   ART_LAYERS = LAYERS.slice(0, 10).map(l => l.index);
   for (const a of ASSETS) BY_ID.set(a.id, a);
-  Art.init(els, digits);
+  Art.init(els, digits, keeper);
 
   buildHero();
   buildRail();
@@ -650,7 +651,7 @@ function bindXIPicker(id, onChange) {
   });
 }
 
-const FORMATION = [['DEF', 4], ['MID', 4], ['FWD', 3]];
+const FORMATION = [['DEF', 4], ['MID', 3], ['FWD', 3]];   // 10 outfield + a keeper
 const POS_NAME = { DEF: 'Defender', MID: 'Midfielder', FWD: 'Forward', FRINGE: 'Unplaced' };
 const POS_WHY = {
   DEF: 'a career whose baseline has no goals in it at all',
@@ -662,10 +663,11 @@ const POS_WHY = {
 /* Where each shirt stands, as a percentage of the pitch. Attacking upward, and
    no goalkeeper because the 64 careers do not contain one. */
 const SPOTS = {
-  DEF: [[15, 84], [38, 88], [62, 88], [85, 84]],
-  MID: [[15, 57], [38, 61], [62, 61], [85, 57]],
-  FWD: [[22, 20], [50, 15], [78, 20]],
+  DEF: [[14, 72], [38, 76], [62, 76], [86, 72]],
+  MID: [[22, 49], [50, 53], [78, 49]],
+  FWD: [[22, 18], [50, 13], [78, 18]],
 };
+const GK_SPOT = [50, 92];
 
 /** A best XI laid out on a pitch. Shared by My Squad and the nation tables. */
 function pitchHTML(xi) {
@@ -674,7 +676,11 @@ function pitchHTML(xi) {
   let out = `<div class="pitch">
     <div class="pitch__l pitch__half"></div><div class="pitch__l pitch__circle"></div>
     <div class="pitch__l pitch__boxT"></div><div class="pitch__l pitch__boxB"></div>
-    <div class="pitch__l pitch__sixT"></div><div class="pitch__l pitch__sixB"></div>`;
+    <div class="pitch__l pitch__sixT"></div><div class="pitch__l pitch__sixB"></div>
+    <div class="pos pos--gk" style="left:${GK_SPOT[0]}%;top:${GK_SPOT[1]}%"
+         title="A stand-in keeper. No soccs is a goalkeeper, so this one is not a card and counts for nothing.">
+      <canvas data-keeper></canvas>
+      <div class="pos__n">Keeper</div><div class="pos__r">stand-in</div></div>`;
   for (const [pos] of FORMATION) {
     const line = (byPos[pos] || []);
     SPOTS[pos].forEach(([x, y], i) => {
@@ -721,6 +727,7 @@ function benchHTML(all, xi) {
 }
 
 function hydratePitch(root) {
+  root.querySelectorAll('.pos canvas[data-keeper]').forEach(c => Art.paintKeeper(c, 3));
   root.querySelectorAll('.pos canvas[data-art]').forEach(c => {
     const a = BY_ID.get(+c.dataset.art);
     if (a) Art.paint(c, a.t, 3);
@@ -738,9 +745,10 @@ function showXI(el) {
     </div>
     <div style="grid-column:1/-1">${xiPickerHTML('nat-xi')}</div>
     <div style="grid-column:1/-1;display:flex;justify-content:center">${pitchHTML(picked)}</div>
-    <p class="lede" style="grid-column:1/-1;margin:0">Four at the back, four in midfield, three up
-      front. Position comes from the career: no goals in the baseline makes a defender, scoring in
-      more than half the games makes a forward.${picked.length < 11
+    <p class="lede" style="grid-column:1/-1;margin:0">Four at the back, three in midfield, three up
+      front, behind a stand-in keeper &mdash; no soccs is a goalkeeper. Position comes from the
+      career: no goals in the baseline makes a defender, scoring in more than half the games makes a
+      forward.${picked.length < 10
         ? ` Only ${picked.length} revealed ${name} players fit this shape so far.` : ''}</p>`);
   hydratePitch($('#sheet'));
   bindXIPicker('nat-xi', () => showXI(el));
@@ -1381,12 +1389,13 @@ function renderSquad(cards, missing) {
       &mdash; though of course it will land as a whole number.</p>` : ''}
 
     ${withRec.length ? `<h3 class="sealh">Best XI</h3>
-      <p class="lede">Four defenders, four in midfield, three up front &mdash; eleven outfield
-        players, because there is no goalkeeper among the 64 careers. A card's position comes from
+      <p class="lede">Four at the back, three in midfield, three up front, behind a keeper.
+        <b>No soccs is a goalkeeper</b> &mdash; there is no such career among the 64 &mdash; so that
+        shirt is a stand-in who is not a card and counts for nothing. A card's position comes from
         its <b>career</b>: no goals in the baseline makes a defender, scoring in more than half the
         games makes a forward, everything between is a midfield player.
-        ${xi.length < 11 ? `<b>${11 - xi.length}</b> shirt${11 - xi.length === 1 ? '' : 's'} cannot
-          be filled &mdash; you have nobody of that type yet.` : ''}</p>
+        ${xi.length < 10 ? `<b>${10 - xi.length}</b> outfield shirt${10 - xi.length === 1 ? '' : 's'}
+          cannot be filled &mdash; you have nobody of that type yet.` : ''}</p>
       ${xiPickerHTML('sq-xi')}
       ${pitchHTML(xi)}
       ${benchHTML(withRec, xi)}` : ''}

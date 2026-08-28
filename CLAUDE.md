@@ -433,6 +433,16 @@ tools/        rpc.py · extract_elements.py (one-off) · build_index.py
 
 ### The pitch
 
+**A goalkeeper and ten outfield, not eleven outfield** (unipeg team, 2026-08-28). 4-3-3 in front of
+a **stand-in keeper**: `data/keeper.json`, drawn in the collection's own 24×24 grammar and its own
+palette, in the goals amber no outfield card wears. It is deliberately flatter than a real card — no
+stadium backdrop, no scoreboard — because **it is not a soccs**, and no card in the collection can
+be. It is never counted, ranked, owned, filtered or clickable, and the pitch says "stand-in" under it.
+
+Formation choice was measured, not guessed: over random holdings the shapes are within 0.3 shirts of
+each other at nine cards, so 4-3-3 wins on being the most legible.
+
+
 **Positions are three buckets, and the formation is 4-4-3.** A separate attacking-midfield band held
 16 of the 64 careers — a quarter of every card — while the formation gave it one shirt, so those
 cards could never get on the pitch. A holder with nine cards, four of them in that band, fielded
@@ -473,9 +483,17 @@ one component, one formation, one set of spots (`SPOTS`).
 the same pitch that is printed on every card — the same principle as drawing every number on the
 site with the collection's own numerals.
 
-Shirt art is 24×3 = 72px, dropping to 24×2 = 48px under 620px. Verified at 1440 and 360: eleven
-shirts, none outside the pitch, none overlapping, no document overflow. That geometry check matters
-more than a screenshot here, because the failure mode is tokens silently stacking on each other.
+Shirt art is 24×3 = 72px, dropping to 24×2 = 48px under 620px. **The mobile pitch is `aspect-ratio:
+.42`, and that number is load-bearing**: a token is roughly 76px tall including its two label lines,
+five rows of them have to fit between 13% and 92% of the height, and at .52 the keeper sat on top of
+the centre-backs. Verified at 1440 and 360: eleven on the pitch, none outside it, none overlapping,
+no document overflow. That geometry check matters more than a screenshot here, because the failure
+mode is tokens silently stacking on each other.
+
+**Scripts are content-versioned too**, not just the stylesheet — a stale cached `js/art.js` produced
+a live "Art.paintKeeper is not a function" during development, and the same would hit anyone holding
+an old copy across a deploy. `tools/prerender.py` stamps `?v=<hash>` on the stylesheet and all three
+scripts, which is what lets `vercel.json` cache them for a year.
 
 ### Aesthetic — "Floodlit"
 
