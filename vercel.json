@@ -56,5 +56,18 @@
         }
       ]
     }
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.unisoccs.app"
+        }
+      ],
+      "destination": "https://unisoccs.app/$1",
+      "permanent": true
+    }
   ]
 }

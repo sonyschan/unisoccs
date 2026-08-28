@@ -385,6 +385,10 @@ Inherited from `~/uDay/CLAUDE.md:238-299`; they were paid for once already.
 
 ## Deploy
 
+**The public domain is `unisoccs.app`.** `tools/prerender.py`'s `SITE` feeds every canonical,
+`og:url`, `og:image` and the sitemap — pointed at the `.vercel.app` alias, it hands ranking and every
+shared link to the wrong domain while both serve identical content. `www` 308s to the apex.
+
 **GitHub is the source of truth.** `github.com/sonyschan/unisoccs` (**public**, MIT) is wired to the
 Vercel project `sonyschans-projects/unisoccs`, so **shipping means commit + push to `main`**.
 Live at **https://unisoccs.vercel.app**.
@@ -479,14 +483,18 @@ by position, with the reason.
 no goalkeeper because the 64 careers do not contain one. Shared by My Squad and the nation tables —
 one component, one formation, one set of spots (`SPOTS`).
 
-**The turf greens are lifted from the Backdrop layer** (`#3e5a3a` / `#44603e`), so a squad stands on
+**The turf greens are lifted from the Backdrop layer** (`#566c42` / `#627a4c`), so a squad stands on
 the same pitch that is printed on every card — the same principle as drawing every number on the
-site with the collection's own numerals.
+site with the collection's own numerals. ⚠️ Sample by **painted area**, not by however the counter
+happens to order things: the first pass took `#3e5a3a`, which is the darkest green in the set and
+only 5% of the turf, about 20% dimmer than the real pitch — fine on a good monitor, near-black on a
+Samsung.
 
-Shirt art is 24×3 = 72px, dropping to 24×2 = 48px under 620px. **The mobile pitch is `aspect-ratio:
-.42`, and that number is load-bearing**: a token is roughly 76px tall including its two label lines,
-five rows of them have to fit between 13% and 92% of the height, and at .52 the keeper sat on top of
-the centre-backs. Verified at 1440 and 360: eleven on the pitch, none outside it, none overlapping,
+Shirt art is 24×3 = 72px, dropping to 24×2 = 48px under 620px. **Height is a `min-height: 520px`
+floor, not a taller aspect ratio on mobile.** The constraint is that five rows of ~76px tokens must
+fit inside the 13%–92% band; expressing that as `aspect-ratio: .42` satisfied it by making a 430px
+phone render a **1,000px pitch** nobody could see at once. A floor states the actual requirement and
+lets the aspect handle every width above it: 387×538 on an iPhone 16 Pro Max, one screenful. Verified at 1440 and 360: eleven on the pitch, none outside it, none overlapping,
 no document overflow. That geometry check matters more than a screenshot here, because the failure
 mode is tokens silently stacking on each other.
 

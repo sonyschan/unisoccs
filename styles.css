@@ -301,9 +301,9 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
 /* ---------------------------------------------------------------- pitch
    The turf greens are lifted from the Backdrop layer, so the pitch a squad
    stands on is the same pitch printed on every card. */
-.pitch{position:relative;width:100%;max-width:660px;aspect-ratio:.72;margin:6px 0 10px;
+.pitch{position:relative;width:100%;max-width:660px;aspect-ratio:.72;min-height:520px;margin:6px 0 10px;
   border:1px solid var(--line);border-radius:3px;overflow:hidden;
-  background:repeating-linear-gradient(to bottom,#3e5a3a 0 8%,#44603e 8% 16%)}
+  background:repeating-linear-gradient(to bottom,#566c42 0 8%,#627a4c 8% 16%)}
 .pitch__l{position:absolute;border:2px solid rgba(238,241,248,.20);pointer-events:none}
 .pitch__half{left:0;right:0;top:50%;height:0;border-width:0 0 2px}
 .pitch__circle{left:50%;top:50%;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);
@@ -331,12 +331,10 @@ tbody tr:nth-child(3) .rank{color:var(--t3)}
   background:rgba(0,0,0,.22);box-shadow:none}
 .pos--empty .pos__n{color:rgba(255,255,255,.55)}
 @media(max-width:620px){
-  /* a token is art plus two label lines, and eleven of them need vertical room:
-     at .66 the keeper sat on top of the centre-backs */
-  /* Five rows of tokens, each about 76px tall including its two label lines,
-     have to fit between 13% and 92% of the height. At .52 that was 383px for
-     380px of tokens and the keeper sat on the centre-backs. */
-  .pitch{aspect-ratio:.42}
+  /* Height is governed by .pitch's min-height, not by a taller aspect here: a
+     fixed tall ratio made a 430px phone render a 1,000px pitch you had to
+     scroll past. Five rows of ~76px tokens sit inside the 13%-92% band, which
+     is what the 520px floor buys. */
   .pos{width:62px}
   .pos canvas{width:48px;height:48px;border-width:1px}
   .pos__n,.pos__r{line-height:1.05}

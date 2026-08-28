@@ -15,7 +15,9 @@ import hashlib, json, os, re, sys, html
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 D = lambda *p: os.path.join(ROOT, *p)
-SITE = "https://unisoccs.vercel.app"
+# The custom domain is the public one. Canonical, og:url and the sitemap must
+# all point at it, or ranking and shares accrue to the .vercel.app alias instead.
+SITE = "https://unisoccs.app"
 FORCE_OG = "--og" in sys.argv
 CHECK    = "--check" in sys.argv
 
