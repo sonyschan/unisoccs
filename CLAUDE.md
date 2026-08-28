@@ -444,6 +444,13 @@ palette, in the goals amber no outfield card wears. It is deliberately flatter t
 stadium backdrop, no scoreboard — because **it is not a soccs**, and no card in the collection can
 be. It is never counted, ranked, owned, filtered or clickable, and the pitch says "stand-in" under it.
 
+Two things about it that were wrong and are worth not repeating. **Every row of a symmetric figure
+must mirror**: the collar sat at x9–12 against a head centred on x11.5, one pixel left, which reads
+as a tilted neck and is invisible until someone stares at it — `tools/` asserts the symmetry now
+rather than trusting an eye. And **the stand-in must be quieter than the cards, not louder**: an
+amber frame made the one thing on the pitch that is *not* a soccs the most prominent thing on it.
+Its frame is now the same white as the outfield shirts at half the opacity.
+
 Formation choice was measured, not guessed: over random holdings the shapes are within 0.3 shirts of
 each other at nine cards, so 4-3-3 wins on being the most legible.
 
