@@ -583,19 +583,71 @@ function nationsView(wrap) {
     tr.onclick = () => showXI(+tr.dataset.nat));
 }
 
-/* 4-3-1-3, outfield only: there is no goalkeeper among the 64 careers. */
+/* How the eleven get picked. Goals-first was hard-coded and invisible, and it
+   benched a Colossus on 88 appearances for a Creator one goal ahead of it on
+   45. Every policy states its own tiebreakers, in order. */
+const total = a => a.apps + a.goals;
+const XI_POLICIES = {
+  output: { label: 'Appearances + goals',
+            hint: 'then goals, then the older card',
+            cmp: (x, y) => total(y) - total(x) || y.goals - x.goals || x.id - y.id },
+  goals:  { label: 'Goals',
+            hint: 'then appearances, then the older card',
+            note: 'A defensive career has no goals in its baseline, so a defender\u2019s goals are ' +
+                  'almost entirely the +0\u20139 roll \u2014 ranking them this way picks a very ' +
+                  'different back four.',
+            cmp: (x, y) => y.goals - x.goals || y.apps - x.apps || x.id - y.id },
+  apps:   { label: 'Appearances',
+            hint: 'then goals, then the older card',
+            cmp: (x, y) => y.apps - x.apps || y.goals - x.goals || x.id - y.id },
+  rarity: { label: 'Rarity',
+            hint: 'then appearances + goals, then goals',
+            cmp: (x, y) => (x.clsRank ?? 99) - (y.clsRank ?? 99)
+                        || total(y) - total(x) || y.goals - x.goals || x.id - y.id },
+};
+let XI_BY = (() => {
+  try { const v = localStorage.getItem('unisoccs.xi'); if (XI_POLICIES[v]) return v; } catch {}
+  return 'output';
+})();
+
+/** 4-4-3, outfield only: there is no goalkeeper among the 64 careers. */
 function pickXI(pool) {
   const out = [], used = new Set();
+  const cmp = XI_POLICIES[XI_BY].cmp;
   for (const [pos, n] of FORMATION) {
-    // defenders are picked on appearances, everyone else on goals — a career
-    // with a zero goals baseline can never win a goals contest
-    const by = pos === 'DEF'
-      ? (x, y) => y.apps - x.apps || y.goals - x.goals
-      : (x, y) => y.goals - x.goals || y.apps - x.apps;
     pool.filter(a => a.pos === pos && !used.has(a.id))
-        .sort(by).slice(0, n).forEach(a => { out.push(a); used.add(a.id); });
+        .sort(cmp).slice(0, n).forEach(a => { out.push(a); used.add(a.id); });
   }
   return out;
+}
+
+/** The picker itself. `onChange` re-renders whatever surface it sits on. */
+function xiPickerHTML(id) {
+  const p = XI_POLICIES[XI_BY];
+  return `<div class="xipick">
+    <span class="xipick__k">Pick the eleven by</span>
+    <div class="sel" id="${id}">
+      <button class="sel__btn" aria-expanded="false">
+        <span>${p.label}</span><i>&#9662;</i></button>
+      <div class="sel__menu" hidden>${Object.entries(XI_POLICIES).map(([k, v]) =>
+        `<button class="sel__opt" data-k="${k}" aria-current="${k === XI_BY}">${v.label}
+           <span style="display:block;color:var(--chalk-faint)">${v.hint}</span></button>`).join('')}
+      </div></div>
+    <span class="xipick__h">${p.hint}</span>
+  </div>${p.note ? `<p class="lede" style="margin:0 0 8px;color:var(--chalk-faint)">${p.note}</p>` : ''}`;
+}
+
+function bindXIPicker(id, onChange) {
+  const el = $('#' + id);
+  if (!el) return;
+  const btn = el.querySelector('.sel__btn'), menu = el.querySelector('.sel__menu');
+  btn.onclick = e => { e.stopPropagation(); menu.hidden = !menu.hidden; };
+  document.addEventListener('click', () => { menu.hidden = true; });
+  el.querySelectorAll('.sel__opt').forEach(o => o.onclick = () => {
+    XI_BY = o.dataset.k;
+    try { localStorage.setItem('unisoccs.xi', XI_BY); } catch {}
+    onChange();
+  });
 }
 
 const FORMATION = [['DEF', 4], ['MID', 4], ['FWD', 3]];
@@ -684,12 +736,14 @@ function showXI(el) {
     <div style="grid-column:1/-1;text-align:center">
       <h2>${name}<small>BEST XI &middot; PICKED BY CAREER RECORD</small></h2>
     </div>
+    <div style="grid-column:1/-1">${xiPickerHTML('nat-xi')}</div>
     <div style="grid-column:1/-1;display:flex;justify-content:center">${pitchHTML(picked)}</div>
     <p class="lede" style="grid-column:1/-1;margin:0">Four at the back, four in midfield, three up
       front. Position comes from the career: no goals in the baseline makes a defender, scoring in
       more than half the games makes a forward.${picked.length < 11
         ? ` Only ${picked.length} revealed ${name} players fit this shape so far.` : ''}</p>`);
   hydratePitch($('#sheet'));
+  bindXIPicker('nat-xi', () => showXI(el));
 }
 
 function hydrateArt(root) {
@@ -1128,6 +1182,7 @@ function renderTraitBanner(L, el) {
    address, which two requests answer exactly. */
 let SQUAD_ADDR = null;
 let SQUAD_CONNECTED = false;   // true only when the address came from the wallet
+let SQUAD_CARDS = [], SQUAD_MISSING = 0;
 
 const ADDR_KEY = 'unisoccs.addr';
 const rememberAddr = a => { try { localStorage.setItem(ADDR_KEY, a); } catch {} };
@@ -1284,6 +1339,7 @@ async function loadSquad(address) {
 }
 
 function renderSquad(cards, missing) {
+  SQUAD_CARDS = cards; SQUAD_MISSING = missing;
   const settled = cards.filter(a => a.lv === 13);
   const sealed  = cards.filter(a => a.lv === 0);
   const withRec = settled.filter(a => a.apps != null);
@@ -1331,6 +1387,7 @@ function renderSquad(cards, missing) {
         games makes a forward, everything between is a midfield player.
         ${xi.length < 11 ? `<b>${11 - xi.length}</b> shirt${11 - xi.length === 1 ? '' : 's'} cannot
           be filled &mdash; you have nobody of that type yet.` : ''}</p>
+      ${xiPickerHTML('sq-xi')}
       ${pitchHTML(xi)}
       ${benchHTML(withRec, xi)}` : ''}
 
@@ -1341,6 +1398,7 @@ function renderSquad(cards, missing) {
     Art.number(c, stats[i][0], 5, cssVar(stats[i][2])));
   hydrateArt($('#sq-body'));
   hydratePitch($('#sq-body'));
+  bindXIPicker('sq-xi', () => renderSquad(cards, missing));
   const grid = $('#sq-grid');
   cards.slice().sort((a, b) => (a.clsRank ?? 99) - (b.clsRank ?? 99) || b.lv - a.lv || a.id - b.id)
        .forEach((a, i) => grid.appendChild(cardEl(a, i)));

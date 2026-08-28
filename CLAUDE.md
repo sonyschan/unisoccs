@@ -451,6 +451,16 @@ a card with genuinely zero appearances is unplaced, which is 13 cards rather tha
 Forward, the derivation is stated wherever an XI appears ("no goals in the baseline makes a
 defender"), the rail has a Position filter, and the card sheet says which one this card is and why.
 
+**Who gets picked is the user's call, not a constant in the source.** The eleven were chosen
+goals-first, hard-coded and invisible, which benched a Colossus on 88 appearances for a Creator one
+goal ahead of it on 45. `XI_POLICIES` offers four orderings — appearances + goals (default), goals,
+appearances, rarity — each printing its own tiebreakers, remembered in `unisoccs.xi`, shared by My
+Squad and the nation tables.
+
+Ranking by goals is genuinely degenerate for defenders (a defensive baseline has no goals, so their
+goals are almost entirely the +0–9 roll, and a Backup on 21 appearances starts). That is a legitimate
+choice, so the policy stays — with a line saying what it does to the back four.
+
 **Show the bench.** "Why is this card not playing?" is the first thing anyone asks, and the answer is
 almost always that a better record holds that shirt. `benchHTML()` lists everyone left out, grouped
 by position, with the reason.
