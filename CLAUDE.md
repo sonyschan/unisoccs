@@ -391,7 +391,8 @@ shared link to the wrong domain while both serve identical content. `www` 308s t
 
 **GitHub is the source of truth.** `github.com/sonyschan/unisoccs` (**public**, MIT) is wired to the
 Vercel project `sonyschans-projects/unisoccs`, so **shipping means commit + push to `main`**.
-Live at **https://unisoccs.vercel.app**.
+Live at **https://unisoccs.app** — the apex is canonical, `www` redirects to it, and the
+`.vercel.app` alias still resolves but is never referenced.
 
 - **Do not `vercel deploy --prod` from the CLI** now that git is connected. It still works, and that
   is the problem: it publishes with no commit behind it, so the live site silently stops matching

@@ -1,6 +1,6 @@
 # Unisoccs
 
-**[unisoccs.vercel.app](https://unisoccs.vercel.app)** — a community-built rarity and trait index
+**[unisoccs.app](https://unisoccs.app)** — a community-built rarity and trait index
 for the [soccs](https://utoken.so/collection/0x4c2d0c58ebe95b9c0eeea4ee08d22072efb0affe) collection
 on Robinhood Chain.
 
