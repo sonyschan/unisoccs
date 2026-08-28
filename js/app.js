@@ -47,10 +47,7 @@ let SORT = 'cls', page = 1, VIEW = 'browse', REVEAL = 'revealed';
   applyTraitRoute();
   render();
   const sq = squadRoute();
-  if (sq !== null) {
-    showView('squad');
-    if (sq) loadSquad(sq); else renderSquadShell();
-  }
+  if (sq !== null) enterSquad(sq);
 })();
 
 /* Tiers arrive from the builder and belong to a CLASS, never to a card.
@@ -1050,12 +1047,7 @@ function bindNav() {
     $$('.view').forEach(v => v.hidden = v.id !== 'v-' + VIEW);
     if (VIEW === 'tables') renderTable();
     if (VIEW === 'sealed') renderSealed();
-    if (VIEW === 'squad') {
-      let a = squadRoute();
-      if (!a) { try { a = localStorage.getItem('unisoccs.addr'); } catch {} }
-      if (a && isAddr(a)) { history.replaceState({}, '', '/squad/' + a); loadSquad(a); }
-      else { history.replaceState({}, '', '/squad'); renderSquadShell(); }
-    }
+    if (VIEW === 'squad') enterSquad(squadRoute());
     scrollTo({ top: $('.hero').offsetHeight - 60, behavior: 'smooth' });
   });
   $('#close').onclick = () => $('#modal').hidden = true;
@@ -1135,6 +1127,11 @@ function renderTraitBanner(L, el) {
    that changes on every trade, and the question is only ever about one
    address, which two requests answer exactly. */
 let SQUAD_ADDR = null;
+let SQUAD_CONNECTED = false;   // true only when the address came from the wallet
+
+const ADDR_KEY = 'unisoccs.addr';
+const rememberAddr = a => { try { localStorage.setItem(ADDR_KEY, a); } catch {} };
+const forgetAddr = () => { try { localStorage.removeItem(ADDR_KEY); } catch {} };
 
 const short = a => a.slice(0, 6) + '…' + a.slice(-4);
 const isAddr = s => /^0x[0-9a-fA-F]{40}$/.test(s.trim());
@@ -1146,39 +1143,123 @@ function squadRoute() {
 
 function renderSquadShell(msg) {
   const eth = window.ethereum;
+  // There is no programmatic disconnect in EIP-1193 — a page cannot end a wallet
+  // session. All "Disconnect" can honestly do is forget the address, so that is
+  // what the button says it does.
+  const action = SQUAD_CONNECTED ? ['sq-forget', 'Disconnect']
+               : SQUAD_ADDR      ? ['sq-forget', 'Clear']
+               : eth             ? ['sq-connect', 'Connect wallet'] : null;
+
   $('#v-squad').innerHTML = `
     <h2 class="sealh" style="margin-top:0">My squad</h2>
     <p class="lede">Every card an address holds, with its class, its record and what is still
-      sealed. Read straight from the contract, so it is current to this second — not to the last
-      time this site was built.</p>
+      sealed. Read straight from the contract, so it is current to this second &mdash; not to the
+      last time this site was built.</p>
     <div class="squadin">
       <input id="sq-addr" type="text" spellcheck="false" autocomplete="off"
              placeholder="0x… paste any address" value="${SQUAD_ADDR || ''}">
       <button class="sq-go" id="sq-go">Look up</button>
-      ${eth ? '<button class="sq-go sq-go--alt" id="sq-connect">Connect wallet</button>' : ''}
+      ${action ? `<button class="sq-go sq-go--alt" id="${action[0]}">${action[1]}</button>` : ''}
     </div>
+    ${SQUAD_CONNECTED ? `<p class="lede" style="color:var(--chalk-faint);margin-top:6px">
+      Connected as <b>${short(SQUAD_ADDR)}</b>. Disconnecting only makes this site forget you
+      &mdash; a page cannot close a wallet session, so revoke it in the wallet itself if you want
+      that too.</p>` : ''}
     ${msg ? `<p class="lede" style="color:var(--kit)">${msg}</p>` : ''}
     <div id="sq-body"></div>`;
 
   const go = () => {
     const v = $('#sq-addr').value.trim();
-    if (!isAddr(v)) return renderSquadShell('That does not look like an address — it should be 0x and 40 hex characters.');
+    if (!isAddr(v)) {
+      SQUAD_ADDR = null; SQUAD_CONNECTED = false;
+      return renderSquadShell('That does not look like an address — it should be 0x followed by 40 hex characters.');
+    }
+    SQUAD_CONNECTED = false;                     // typed or pasted, not connected
     history.pushState({}, '', '/squad/' + v.toLowerCase());
     loadSquad(v.toLowerCase());
   };
   $('#sq-go').onclick = go;
   $('#sq-addr').onkeydown = e => { if (e.key === 'Enter') go(); };
-  if (eth) $('#sq-connect').onclick = async () => {
+
+  const connect = $('#sq-connect');
+  if (connect) connect.onclick = async () => {
     let acc;
     try { acc = await eth.request({ method: 'eth_requestAccounts' }); }
-    catch { return; }                                    // declined; nothing to say
+    catch { return; }                            // declined; nothing to say
     if (!acc?.[0]) return;
     const a = acc[0].toLowerCase();
-    try { localStorage.setItem('unisoccs.addr', a); } catch {}
+    SQUAD_CONNECTED = true;
+    bindWallet();
+    rememberAddr(a);
     history.pushState({}, '', '/squad/' + a);
     loadSquad(a);
   };
+
+  const forget = $('#sq-forget');
+  if (forget) forget.onclick = () => {
+    SQUAD_ADDR = null; SQUAD_CONNECTED = false;
+    forgetAddr();
+    history.pushState({}, '', '/squad');
+    renderSquadShell();
+  };
 }
+
+/** One way into the squad view, from the route, from storage, or from neither. */
+async function enterSquad(routeAddr) {
+  showView('squad');
+  bindWallet();
+  const restored = await restoreWallet();
+  let addr = routeAddr || restored;
+  if (!addr) { try { addr = localStorage.getItem(ADDR_KEY); } catch {} }
+  SQUAD_CONNECTED = !!restored && (!addr || addr === restored);
+  if (addr && isAddr(addr)) {
+    history.replaceState({}, '', '/squad/' + addr);
+    loadSquad(addr);
+  } else {
+    SQUAD_ADDR = null;
+    history.replaceState({}, '', '/squad');
+    renderSquadShell();
+  }
+}
+
+/* Restore a session without prompting: eth_accounts returns the already
+   authorised account, or nothing, and never opens the wallet. */
+async function restoreWallet() {
+  const eth = window.ethereum;
+  if (!eth) return null;
+  let stored = null;
+  try { stored = localStorage.getItem(ADDR_KEY); } catch {}
+  if (!stored) return null;
+  try {
+    const acc = await eth.request({ method: 'eth_accounts' });
+    if (acc?.[0] && acc[0].toLowerCase() === stored) return stored;
+  } catch {}
+  return null;
+}
+
+/* Switching accounts in the wallet should move the page with it.
+
+   Attached lazily, not at parse time: some wallets inject window.ethereum after
+   the scripts have run, and a listener registered against a provider that did
+   not exist yet is a listener that never fires. */
+let WALLET_BOUND = false;
+function bindWallet() {
+  const eth = window.ethereum;
+  if (WALLET_BOUND || !eth?.on) return;
+  WALLET_BOUND = true;
+  eth.on('accountsChanged', acc => {
+    if (!SQUAD_CONNECTED) return;
+    const a = acc?.[0]?.toLowerCase();
+    if (!a) {                                    // the wallet revoked us
+      SQUAD_ADDR = null; SQUAD_CONNECTED = false; forgetAddr();
+      if (VIEW === 'squad') { history.replaceState({}, '', '/squad'); renderSquadShell(); }
+      return;
+    }
+    rememberAddr(a);
+    if (VIEW === 'squad') { history.replaceState({}, '', '/squad/' + a); loadSquad(a); }
+  });
+}
+
 
 async function loadSquad(address) {
   SQUAD_ADDR = address;
