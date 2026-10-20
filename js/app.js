@@ -1,6 +1,6 @@
 /* Unisoccs dashboard.
    Data is a single committed JSON built from chain reads. The browser never
-   touches an RPC or utoken.so (CLAUDE.md) — there is nothing to rate-limit,
+   touches an RPC or utoken.gg (CLAUDE.md) — there is nothing to rate-limit,
    nothing to CORS-block, and nothing to go down. */
 'use strict';
 
@@ -1038,7 +1038,7 @@ function openCard(a) {
         ${a.apps != null ? `<div class="plate"><canvas></canvas><span>apps</span></div>
         <div class="plate"><canvas></canvas><span>goals</span></div>` : ''}
       </div>
-      <a href="https://utoken.so/collection/0x4c2d0c58ebe95b9c0eeea4ee08d22072efb0affe?tab=items&item=${a.id}"
+      <a href="https://utoken.gg/collection/0x4c2d0c58ebe95b9c0eeea4ee08d22072efb0affe?tab=items&item=${a.id}"
          target="_blank" rel="noopener"
          style="font-size:var(--fs-micro);color:var(--chalk-faint)">View on uToken &#8599;</a>
     </div>

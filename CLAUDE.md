@@ -6,7 +6,7 @@ Community-driven rarity + trait index for the **soccs** collection (uToken, Robi
 Commissioned by the unipeg team, who framed it as **"an index / database"**. Distinct from the
 `uday` and `unipeg-lens` repos — shares nothing but the owner and the conventions.
 
-**What this site exists to fix.** utoken.so has no rarity scoring, no trait filtering, and no way
+**What this site exists to fix.** utoken.gg (formerly utoken.so) has no rarity scoring, no trait filtering, and no way
 to see every item sharing a trait. Holders cannot tell how rare their own card is, so they cannot
 price a listing. Same shape as uDAY: the marketplace hosts the art, we ship the missing index layer.
 
@@ -316,7 +316,9 @@ silently — gate on that too.
 
 ---
 
-## utoken.so API (CI only — no CORS)
+## utoken.gg API (CI only — no CORS)
+
+`utoken.so` 301s to `utoken.gg` since 2026-10 (path + query preserved). Use `.gg` directly.
 
 ```
 GET /api/tokens/<addr>              token metadata + market data
@@ -332,7 +334,7 @@ GET /api/eth-price · /api/stats
   do this. **Check `content-type`; the status code carries no information here.**
 - ⚠️ **The default `/assets` ordering correlates with reveal state.** The first pages are almost all
   revealed cards. See the sampling post-mortem below.
-- Deep link (UI, not API): `https://utoken.so/collection/<addr>?tab=items&item=<assetId>` —
+- Deep link (UI, not API): `https://utoken.gg/collection/<addr>?tab=items&item=<assetId>` —
   **`tab=items` is required**; a bare `?item=` is ignored.
 
 The `layerViews` sweep (44 s, exact, no HTTP) is strictly better than this API for the alive set.
@@ -351,6 +353,12 @@ Keep the API path only as a cross-check and for owner data.
 - **A failure and an empty result must never share a shape.** Only an execution revert means "nothing
   here". Capacity errors (HTTP 429 from the public node, `-32005` inside a 200 from Alchemy) must be
   retried. uDAY's first sweep silently recorded 5,000 rate-limited assets as unrevealed.
+- **Burns hollow out the id range, so "N empty ids in a row" is not the end of it.** By 2026-10
+  whole 1,500-id chunks (3001-4500, 49501-51000, 55501-57000) held nothing alive; a 512-miss stop
+  rule quit at the first, swept 23 cards, and CI failed for four weeks. There is no mint-counter
+  getter. The sweep now never stops below the previous `maxAliveId` and needs a 15,000-id gap.
+  The 90% floor applies only against a baseline under 24h old — against a stale one it blocked a
+  real decline (6,842 -> 4,291, utoken.gg agreed at 4,288).
 - **Errors swallowed in a thread pool report as zero results.** A probe here returned "decoded 0"
   with no explanation because `except Exception: pass` hid a 403. Capture the last error and print it.
 - Foil and Special Kit will dominate any rarity leaderboard. If "rarest 100" degenerates into
@@ -365,7 +373,7 @@ Keep the API path only as a cross-check and for owner data.
 
 Inherited from `~/uDay/CLAUDE.md:238-299`; they were paid for once already.
 
-- **The browser never touches an RPC or utoken.so.** CI reads, computes, and commits JSON; the page
+- **The browser never touches an RPC or utoken.gg.** CI reads, computes, and commits JSON; the page
   fetches static files. This turns CORS, rate limits, RPC flakiness and slow renders into build
   problems instead of user-facing ones.
 - **Pixel art is never downscaled for UI.** Integer upscales only. The art is 24x24, so every rendered

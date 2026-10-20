@@ -61,8 +61,14 @@ def assert_config():
     print(f"gates: 13 layers, canvas 24, bg {bg}, elementsPerLayer + appearanceBps all match")
 
 # ---------------------------------------------------------------- sweep
-def sweep_alive(hi_probe=512, chunk=1500):
-    """layerViews over every id until `hi_probe` consecutive reverts. -> {id: lv}"""
+def sweep_alive(floor=0, gap=15000, chunk=1500):
+    """layerViews over every id until `gap` consecutive reverts past `floor`. -> {id: lv}
+
+    Burns hollow out the low ids: by 2026-10 whole 1,500-id chunks (3001-4500,
+    49501-51000) held nothing alive, and a 512-miss stop rule quit at the first one,
+    sweeping 23 cards instead of ~6,800. There is no mint-counter getter, so the
+    stop rule must outlast any interior gap: never stop below the last sweep's
+    maxAliveId, and demand a gap ten chunks wide beyond it."""
     alive, a, misses, hi = {}, 1, 0, 0
     while True:
         ids = list(range(a, a + chunk))
@@ -72,7 +78,7 @@ def sweep_alive(hi_probe=512, chunk=1500):
             if ok and len(data) == 32:
                 alive[i] = int.from_bytes(data, "big"); got += 1; hi = i
         misses = 0 if got else misses + chunk
-        if misses >= hi_probe and a > hi:
+        if misses >= gap and a > max(hi, floor):
             break
         a += chunk
     return alive, hi
@@ -202,8 +208,11 @@ def open_rarity(vecs_settled):
 def main():
     t0 = time.time()
     assert_config()
+    prev = None
+    if os.path.exists(D("index.json")):
+        prev = json.load(open(D("index.json")))
     print("sweeping layerViews ...")
-    alive, maxid = sweep_alive()
+    alive, maxid = sweep_alive(floor=prev["meta"]["maxAliveId"] if prev else 0)
     lvh = Counter(alive.values())
     print(f"  alive {len(alive)}  maxAliveId {maxid}  "
           f"sealed {lvh[0]}  partial {sum(v for k,v in lvh.items() if 0<k<13)}  settled {lvh[13]}"
@@ -211,9 +220,10 @@ def main():
     if len(alive) > 10000:
         sys.exit(f"ABORT: {len(alive)} alive exceeds the 10,000 ceiling")
 
-    prev = None
-    if os.path.exists(D("index.json")):
-        prev = json.load(open(D("index.json")))
+    # The floor guards one cron interval. Against a stale baseline it cannot tell
+    # burns from breakage: after four weeks of failed runs the real count had fallen
+    # 6,842 -> 4,291 (utoken.gg agreed: 4,288), and this check kept refusing the truth.
+    if prev and time.time() - prev["meta"]["builtAt"] < 24 * 3600:
         if len(alive) < 0.90 * prev["meta"]["alive"]:
             sys.exit(f"ABORT: alive {len(alive)} is <90% of previous {prev['meta']['alive']}; "
                      "burns are real but a cliff that size is a broken sweep")
